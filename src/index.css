@@ -1,0 +1,12 @@
+html,
+body {
+  margin: 0;
+  height: 100vh;
+}
+/* body {
+  padding: 8px;
+  height: calc(100vh - 16px);
+} */
+#root {
+  height: 100%;
+}
