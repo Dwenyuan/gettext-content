@@ -6,7 +6,11 @@ import "./index.css";
 import * as serviceWorker from "./serviceWorker";
 import configureStore from "./store";
 import { SET_CONTENT } from "./store/actions";
-const { ipcRenderer } = window.require("electron");
+import { EventEmitter } from "events";
+
+const { ipcRenderer } = window.require
+  ? window.require("electron")
+  : { ipcRenderer: new EventEmitter() };
 
 const store = configureStore();
 ipcRenderer.on("readed", (event: any, content: string) =>

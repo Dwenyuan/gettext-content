@@ -2,9 +2,9 @@
  * po文件解析后的类型
  *
  * @export
- * @interface ContentBean
+ * @interface TranslationBean
  */
-export interface ContentBean {
+export interface TranslationBean {
   charset: string;
   header: {
     [index: string]: string;
