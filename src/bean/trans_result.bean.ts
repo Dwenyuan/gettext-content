@@ -1,4 +1,4 @@
-import { Lang } from "../services/translate.service";
+import { Lang } from "../services/translator.service";
 
 /**
  * 百度翻译返回结果

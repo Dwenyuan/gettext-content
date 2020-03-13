@@ -1,9 +1,9 @@
-import { Button, Grid, makeStyles, Paper } from "@material-ui/core";
+import { Grid, makeStyles, Paper } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import React from "react";
 import { DataTable } from "./components/data.table";
-import { TranslatorArea } from "./components/translator.area";
 import { HelperList } from "./components/helper.list";
+import { TranslatorArea } from "./components/translator.area";
 
 const useStyles = makeStyles(theme => ({
   root: {

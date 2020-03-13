@@ -3,19 +3,19 @@ import {
   Card,
   CardActions,
   CardContent,
-  Paper,
-  Typography,
   List,
   ListItem,
-  ListItemText
+  ListItemText,
+  Paper,
+  Typography
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React, { useEffect, useState } from "react";
 import { connect, DispatchProp } from "react-redux";
 import { Translation } from "../bean/content.bean";
 import { BaiduTransResultBean } from "../bean/trans_result.bean";
+import { translatorByBaidu } from "../services/translator.service";
 import { RootReducer } from "../store/reduce";
-const { ipcRenderer } = window.require("electron");
 
 const useStyles = makeStyles({
   card: {
@@ -34,14 +34,12 @@ export const HelperList = connect(
   const classes = useStyles();
   const [baiduTrans = {}, setBaiduTrans] = useState<BaiduTransResultBean>();
   useEffect(() => {
-    ipcRenderer.send("get-translation", { query: msgid, from: "en", to: "zh" });
-    ipcRenderer.on(
-      "translated",
-      (event: any, content: BaiduTransResultBean) => {
+    translatorByBaidu({ query: msgid, from: "en", to: "zh" })
+      .then(res => res.json<BaiduTransResultBean>())
+      .then((content: BaiduTransResultBean) => {
         console.log("content", content);
         setBaiduTrans(content);
-      }
-    );
+      });
   }, [msgid]);
   const { trans_result = [] } = baiduTrans as BaiduTransResultBean;
   return (
