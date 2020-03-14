@@ -5,6 +5,11 @@ export const FETCH_CONTENT = "FETCH_CONTENT";
 export const SET_CONTENT = "SET_CONTENT";
 
 /**
+ * 读取一个json文件，合并到已有的po文件
+ */
+export const MERGE_CONTENT_EPIC = "MERGE_CONTENT_EPIC";
+export const MERGE_CONTENT = "MERGE_CONTENT";
+/**
  * 选中某一行
  */
 export const SELECT_ROW = "SELECT_ROW";

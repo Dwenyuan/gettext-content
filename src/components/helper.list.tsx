@@ -6,7 +6,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  Paper,
   Typography
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
@@ -14,9 +13,10 @@ import React, { useEffect, useState } from "react";
 import { connect, DispatchProp } from "react-redux";
 import { Translation } from "../bean/content.bean";
 import { BaiduTransResultBean } from "../bean/trans_result.bean";
+import { mergeFile, rescanProject } from "../services/file.services";
 import { translatorByBaidu } from "../services/translator.service";
-import { RootReducer } from "../store/reduce";
 import { PRE_TRANSLATOR } from "../store/actions";
+import { RootReducer } from "../store/reduce";
 
 const useStyles = makeStyles({
   card: {
@@ -31,7 +31,7 @@ interface IProps extends Translation, DispatchProp {}
 export const HelperList = connect(
   ({ SelectedTranslation }: RootReducer) => SelectedTranslation
 )((props: IProps) => {
-  const { msgid = "", msgstr, comments: { reference = "" } = {}, dispatch } =
+  const { msgid = "", comments: { reference = "" } = {}, dispatch } =
     props || {};
   const classes = useStyles();
   const [baiduTrans = {}, setBaiduTrans] = useState<BaiduTransResultBean>();
@@ -59,6 +59,22 @@ export const HelperList = connect(
               style={{ width: "100%" }}
             >
               预翻译
+            </Button>
+            <Button
+              onClick={mergeFile}
+              variant="contained"
+              color="primary"
+              style={{ width: "100%", marginTop: 10 }}
+            >
+              合并已有翻译文件
+            </Button>
+            <Button
+              onClick={rescanProject}
+              variant="contained"
+              color="primary"
+              style={{ width: "100%", marginTop: 10 }}
+            >
+              重新扫描项目
             </Button>
           </Typography>
         </CardContent>

@@ -3,12 +3,31 @@ import { AnyAction } from "redux";
 import { combineEpics, ofType, StateObservable } from "redux-observable";
 import { interval, of } from "rxjs";
 import { Observable } from "rxjs/internal/Observable";
-import { map, mapTo, mergeMap, skip, switchMap, take, tap } from "rxjs/operators";
+import {
+  map,
+  mapTo,
+  mergeMap,
+  skip,
+  switchMap,
+  take,
+  tap
+} from "rxjs/operators";
 import { ActionBean } from "../bean/action.bean";
 import { sourceLanguage } from "../bean/content.bean";
 import { BaiduTransResultBean } from "../bean/trans_result.bean";
 import { Lang, translatorByBaidu } from "../services/translator.service";
-import { CHANGE_CONTENT, CHANGE_CONTENT_EPIC, FETCH_CONTENT, PRE_TRANSLATOR, SELECT_ROW, SELECT_ROW_EPIC, UNREAD_FILE, UNREAD_FILE_EPIC } from "./actions";
+import {
+  CHANGE_CONTENT,
+  CHANGE_CONTENT_EPIC,
+  FETCH_CONTENT,
+  PRE_TRANSLATOR,
+  SELECT_ROW,
+  SELECT_ROW_EPIC,
+  UNREAD_FILE,
+  UNREAD_FILE_EPIC,
+  MERGE_CONTENT_EPIC,
+  MERGE_CONTENT
+} from "./actions";
 import { RootReducer } from "./reduce";
 
 /**
@@ -20,6 +39,15 @@ export const fetchContent = (
   action$: Observable<AnyAction>,
   state$: StateObservable<void>
 ) => action$.pipe(ofType(FETCH_CONTENT));
+
+export const mergeContent = (
+  action$: Observable<ActionBean<{ [index: string]: string }>>,
+  state$: Observable<RootReducer>
+) =>
+  action$.pipe(
+    ofType(MERGE_CONTENT_EPIC),
+    map(({ payload }) => ({ type: MERGE_CONTENT, payload }))
+  );
 
 export const selectRow = (
   action$: Observable<ActionBean<string>>,
@@ -42,7 +70,12 @@ export const selectRow = (
 export const unreadFile = (
   action$: Observable<ActionBean<string>>,
   state$: Observable<RootReducer>
-) => action$.pipe(ofType(UNREAD_FILE_EPIC), mapTo({ type: UNREAD_FILE }));
+) =>
+  action$.pipe(
+    ofType(UNREAD_FILE_EPIC),
+    tap(() => localStorage.removeItem("filePath")),
+    mapTo({ type: UNREAD_FILE })
+  );
 export const changeContent = (
   action$: Observable<ActionBean<{ key: string; value: string }>>,
   state$: Observable<RootReducer>
@@ -115,6 +148,7 @@ export const rootEpic = combineEpics(
   fetchContent,
   selectRow,
   unreadFile,
+  mergeContent,
   preTranslator,
   changeContent
 );

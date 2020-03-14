@@ -1,9 +1,13 @@
 import { Grid, makeStyles, Paper } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
-import React from "react";
+import { isEmpty } from "lodash";
+import React, { useEffect } from "react";
+import { connect, DispatchProp } from "react-redux";
+import { RouteComponentProps, withRouter } from "react-router-dom";
+import { TranslationBean } from "../bean/content.bean";
 import { DataTable } from "../components/data.table";
 import { HelperList } from "../components/helper.list";
-import { TranslatorArea } from "../components/translator.area";
+import { mapTanslation } from "../store/mapStateToProps";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -26,8 +30,17 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1
   }
 }));
-function TranslatorPage() {
+interface IProps extends TranslationBean, RouteComponentProps, DispatchProp {}
+function TranslatorPage(props: IProps) {
   const classes = useStyles();
+  const { history, translations } = props;
+  useEffect(() => {
+    if (!isEmpty(translations)) {
+      history.push("/translator");
+    } else {
+      history.push("/");
+    }
+  }, [history, translations]);
   return (
     <Grid className={classes.root} container direction="row">
       <Grid
@@ -43,11 +56,11 @@ function TranslatorPage() {
             <DataTable></DataTable>
           </Paper>
         </Grid>
-        <Grid className={classes.split} style={{ height: 260 }}>
+        {/* <Grid className={classes.split} style={{ height: 260 }}>
           <Paper style={{ padding: 5 }}>
             <TranslatorArea></TranslatorArea>
           </Paper>
-        </Grid>
+        </Grid> */}
       </Grid>
       <Grid style={{ paddingLeft: 5 }} item xs={4}>
         <HelperList></HelperList>
@@ -56,4 +69,4 @@ function TranslatorPage() {
   );
 }
 
-export default TranslatorPage;
+export default withRouter(connect(mapTanslation)(TranslatorPage));

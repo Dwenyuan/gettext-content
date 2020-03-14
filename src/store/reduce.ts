@@ -4,9 +4,11 @@ import {
   SET_CONTENT,
   SELECT_ROW,
   UNREAD_FILE,
-  CHANGE_CONTENT
+  CHANGE_CONTENT,
+  MERGE_CONTENT
 } from "./actions";
 import { combineReducers } from "redux";
+import { zipObjectDeep } from "lodash";
 export interface RootReducer {
   ContentReducer: TranslationBean;
   SelectedTranslation: Translation;
@@ -15,14 +17,34 @@ export function ContentReducer(
   state: TranslationBean = { charset: "", headers: {}, translations: {} },
   action: ActionBean = { type: undefined }
 ) {
+  const translationsInner = state.translations[""] || {};
+  const { payload = {} } = action;
   switch (action.type) {
     case SET_CONTENT:
       return { ...state, ...action.payload };
     case UNREAD_FILE:
       return { charset: "", headers: {}, translations: {} };
+    case MERGE_CONTENT:
+      const keys = Object.keys(payload);
+      const nextTranslations = zipObjectDeep(
+        keys,
+        keys.map(v => ({
+          ...translationsInner[v],
+          msgstr: payload[v]
+        }))
+      );
+      return {
+        ...state,
+        translations: {
+          ...state.translations,
+          "": {
+            ...translationsInner,
+            ...nextTranslations
+          }
+        }
+      };
     case CHANGE_CONTENT:
       const { key, value } = action.payload;
-      const translationsInner = state.translations[""] || {};
       const result = {
         ...state,
         translations: {
