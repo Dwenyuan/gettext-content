@@ -1,17 +1,18 @@
-import { ActionBean } from "../bean/action.bean";
-import { TranslationBean, Translation } from "../bean/content.bean";
-import {
-  SET_CONTENT,
-  SELECT_ROW,
-  UNREAD_FILE,
-  CHANGE_CONTENT,
-  MERGE_CONTENT
-} from "./actions";
-import { combineReducers } from "redux";
 import { zipObjectDeep } from "lodash";
+import { combineReducers } from "redux";
+import { ActionBean } from "../bean/action.bean";
+import { TranslationBean } from "../bean/content.bean";
+import { FUZZY } from "../services/config";
+import {
+  CHANGE_CONTENT,
+  MERGE_CONTENT,
+  SELECT_ROW,
+  SET_CONTENT,
+  UNREAD_FILE
+} from "./actions";
 export interface RootReducer {
   ContentReducer: TranslationBean;
-  SelectedTranslation: Translation;
+  SelectedTranslation: { selectedId?: string };
 }
 export function ContentReducer(
   state: TranslationBean = { charset: "", headers: {}, translations: {} },
@@ -45,14 +46,22 @@ export function ContentReducer(
         }
       };
     case CHANGE_CONTENT:
-      const { key, value } = action.payload;
+      const { key, value, fuzzy } = action.payload;
+      const { comments } = translationsInner[key] || {};
       const result = {
         ...state,
         translations: {
           ...state.translations,
           "": {
             ...translationsInner,
-            [key]: { ...translationsInner[key], msgstr: [value] }
+            [key]: {
+              ...translationsInner[key],
+              msgstr: [value],
+              comments: {
+                ...comments,
+                flag: fuzzy ? FUZZY : undefined
+              }
+            }
           }
         }
       };
@@ -62,12 +71,12 @@ export function ContentReducer(
   }
 }
 export function SelectedTranslation(
-  state: Translation = {},
-  action: ActionBean
+  state: { selectedId?: string } = { selectedId: undefined },
+  action: ActionBean<{ selectedId: string }>
 ) {
   switch (action.type) {
     case SELECT_ROW:
-      return action.payload;
+      return { selectedId: action.payload };
     default:
       return state;
   }

@@ -1,13 +1,24 @@
-import { Button, Card, CardActions, CardContent, List, ListItem, ListItemText, Typography } from "@material-ui/core";
+import {
+  Button,
+  Card,
+  CardContent,
+  FormControlLabel,
+  List,
+  ListItem,
+  ListItemText,
+  Switch,
+  Typography
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import React, { useEffect, useState } from "react";
 import { connect, DispatchProp } from "react-redux";
-import { sourceLanguage } from "../bean/content.bean";
+import { sourceLanguage, Translation } from "../bean/content.bean";
 import { BaiduTransResultBean } from "../bean/trans_result.bean";
 import { mergeFile, rescanProject } from "../services/file.services";
 import { Lang, translatorByBaidu } from "../services/translator.service";
 import { CHANGE_CONTENT_EPIC, PRE_TRANSLATOR } from "../store/actions";
 import { RootReducer } from "../store/reduce";
+import { FUZZY } from "../services/config";
 
 const useStyles = makeStyles({
   card: {
@@ -15,6 +26,10 @@ const useStyles = makeStyles({
   },
   translator: {
     marginTop: 5
+  },
+  rootBtn: {
+    width: "100%",
+    marginTop: 10
   }
 });
 interface IProps extends RootReducer, DispatchProp {}
@@ -22,25 +37,38 @@ interface IProps extends RootReducer, DispatchProp {}
 export const HelperList = connect((root: RootReducer) => root)(
   (props: IProps) => {
     const {
-      SelectedTranslation: { msgid = "", comments: { reference = "" } = {} },
+      SelectedTranslation: { selectedId },
       ContentReducer: {
-        headers: { Language = "zh" }
+        headers: { Language = "zh" },
+        translations
       },
       dispatch
     } = props || {};
     const classes = useStyles();
     const [baiduTrans = {}, setBaiduTrans] = useState<BaiduTransResultBean>();
+    const [selected, setSelected] = useState<Translation | undefined>();
+    const {
+      msgid,
+      msgstr: [first] = [],
+      comments: { reference = "", flag = undefined } = {}
+    } = selected! || {};
     useEffect(() => {
-      translatorByBaidu({
-        query: msgid,
-        from: sourceLanguage,
-        to: Lang[Language]
-      })
-        .then(res => res.json<BaiduTransResultBean>())
-        .then((content: BaiduTransResultBean) => {
-          console.log("content", content);
-          setBaiduTrans(content);
-        });
+      const selectTranslation = (translations[""] || {})[selectedId!];
+      setSelected(selectTranslation);
+    }, [selectedId, translations]);
+    useEffect(() => {
+      if (msgid) {
+        translatorByBaidu({
+          query: msgid,
+          from: sourceLanguage,
+          to: Lang[Language]
+        })
+          .then(res => res.json<BaiduTransResultBean>())
+          .then((content: BaiduTransResultBean) => {
+            console.log("content", content);
+            setBaiduTrans(content);
+          });
+      }
     }, [Language, msgid]);
     const { trans_result = [] } = baiduTrans as BaiduTransResultBean;
     function preTranslator() {
@@ -51,27 +79,47 @@ export const HelperList = connect((root: RootReducer) => root)(
         <Card className={classes.card}>
           <CardContent>
             <Typography variant="subtitle1" color="primary">
+              <FormControlLabel
+                control={
+                  <Switch
+                    disabled={!msgid}
+                    checked={flag === FUZZY}
+                    onChange={e =>
+                      dispatch({
+                        type: CHANGE_CONTENT_EPIC,
+                        payload: {
+                          key: msgid,
+                          value: first,
+                          fuzzy: e.target.checked
+                        }
+                      })
+                    }
+                    color="secondary"
+                  />
+                }
+                label="标记需要处理"
+              />
               <Button
                 onClick={preTranslator}
+                className={classes.rootBtn}
                 variant="contained"
                 color="primary"
-                style={{ width: "100%" }}
               >
                 预翻译
               </Button>
               <Button
                 onClick={mergeFile}
+                className={classes.rootBtn}
                 variant="contained"
                 color="primary"
-                style={{ width: "100%", marginTop: 10 }}
               >
                 合并已有翻译文件
               </Button>
               <Button
                 onClick={rescanProject}
+                className={classes.rootBtn}
                 variant="contained"
                 color="primary"
-                style={{ width: "100%", marginTop: 10 }}
               >
                 重新扫描项目
               </Button>
@@ -81,7 +129,7 @@ export const HelperList = connect((root: RootReducer) => root)(
         <Card className={classes.card}>
           <CardContent>
             <Typography variant="subtitle1" color="primary">
-              {msgid ? msgid : <Button onClick={preTranslator}>预翻译</Button>}
+              {msgid}
             </Typography>
           </CardContent>
         </Card>
@@ -91,19 +139,20 @@ export const HelperList = connect((root: RootReducer) => root)(
               百度翻译
             </Typography>
             <Typography
+              component={"div"}
               className={classes.translator}
               variant="body1"
               color="initial"
             >
-              <List dense>
+              <List component={"div"} dense>
                 {trans_result.map(({ src, dst }) => (
-                  <ListItem key={src} button>
+                  <ListItem component={"span"} key={src} button>
                     <ListItemText
                       primary={dst}
                       onClick={() =>
                         dispatch({
                           type: CHANGE_CONTENT_EPIC,
-                          payload: { key: msgid, value: dst }
+                          payload: { key: msgid, value: dst, fuzzy: true }
                         })
                       }
                     />

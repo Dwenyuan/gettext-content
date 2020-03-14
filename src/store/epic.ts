@@ -3,12 +3,31 @@ import { AnyAction } from "redux";
 import { combineEpics, ofType, StateObservable } from "redux-observable";
 import { interval, of } from "rxjs";
 import { Observable } from "rxjs/internal/Observable";
-import { map, mapTo, mergeMap, skip, switchMap, take, tap } from "rxjs/operators";
+import {
+  map,
+  mapTo,
+  mergeMap,
+  skip,
+  switchMap,
+  take,
+  tap
+} from "rxjs/operators";
 import { ActionBean } from "../bean/action.bean";
 import { sourceLanguage } from "../bean/content.bean";
 import { BaiduTransResultBean } from "../bean/trans_result.bean";
 import { Lang, translatorByBaidu } from "../services/translator.service";
-import { CHANGE_CONTENT, CHANGE_CONTENT_EPIC, FETCH_CONTENT, MERGE_CONTENT, MERGE_CONTENT_EPIC, PRE_TRANSLATOR, SELECT_ROW, SELECT_ROW_EPIC, UNREAD_FILE, UNREAD_FILE_EPIC } from "./actions";
+import {
+  CHANGE_CONTENT,
+  CHANGE_CONTENT_EPIC,
+  FETCH_CONTENT,
+  MERGE_CONTENT,
+  MERGE_CONTENT_EPIC,
+  PRE_TRANSLATOR,
+  SELECT_ROW,
+  SELECT_ROW_EPIC,
+  UNREAD_FILE,
+  UNREAD_FILE_EPIC
+} from "./actions";
 import { RootReducer } from "./reduce";
 
 /**
@@ -36,17 +55,7 @@ export const selectRow = (
 ) =>
   action$.pipe(
     ofType(SELECT_ROW_EPIC),
-    mergeMap(({ payload }: any) =>
-      state$.pipe(
-        take(1),
-        map(
-          ({ ContentReducer }) =>
-            (ContentReducer.translations[""] || {})[payload]
-        )
-      )
-    ),
-    tap(console.log),
-    map(payload => ({ type: SELECT_ROW, payload }))
+    map(({ payload }) => ({ type: SELECT_ROW, payload }))
   );
 export const unreadFile = (
   action$: Observable<ActionBean<string>>,
@@ -115,7 +124,7 @@ export const preTranslator = (
                   // 全局翻译只取第一个结果
                   const { trans_result: [result = { dst: "" }] = [] } = content;
                   const { dst } = result;
-                  return { key: msgId, value: dst };
+                  return { key: msgId, value: dst, fuzzy: true };
                 })
               );
           },
