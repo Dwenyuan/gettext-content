@@ -76,7 +76,6 @@ export function DataTableInner(props: IProps) {
                 onChange={onChange({ dispatch }, key)}
                 id="standard-basic"
                 multiline
-                // rowsMax="1"
                 value={first}
               />
             </TableCell>
@@ -156,7 +155,11 @@ function getFiletedList(param: {
         return true;
       }
     })
-    .filter(f => new RegExp(keyword.replace(/(\\|\?)/g, "$1"), "i").test(f));
+    .filter(f =>
+      new RegExp(keyword.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), "i").test(
+        f
+      )
+    );
 }
 function onChange({ dispatch }: DispatchProp, key: string) {
   return ({

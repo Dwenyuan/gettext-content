@@ -5,24 +5,9 @@ import App from "./App";
 import "./index.css";
 import * as serviceWorker from "./serviceWorker";
 import configureStore from "./store";
-import { SET_CONTENT } from "./store/actions";
-import { EventEmitter } from "events";
-
-const { ipcRenderer } = window.require
-  ? window.require("electron")
-  : { ipcRenderer: new EventEmitter() };
 
 export const store = configureStore();
-ipcRenderer.on(
-  "readed",
-  (
-    event: any,
-    { filePath, content: payload }: { filePath: string; content: string }
-  ) => {
-    localStorage.setItem("filePath", filePath);
-    store.dispatch({ type: SET_CONTENT, payload });
-  }
-);
+
 // ipcRenderer.on("readed", console.log);
 ReactDOM.render(
   <Provider store={store}>

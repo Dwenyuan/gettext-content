@@ -40,7 +40,8 @@ function TranslatorPage(props: IProps) {
     } else {
       history.push("/");
     }
-  }, [history, translations]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [translations]);
   return (
     <Grid className={classes.root} container direction="row">
       <Grid

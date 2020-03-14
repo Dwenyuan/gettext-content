@@ -1,14 +1,22 @@
+import { store } from "..";
 import {
-  UNREAD_FILE_EPIC,
   MERGE_CONTENT_EPIC,
-  SET_CONTENT
+  SET_CONTENT,
+  UNREAD_FILE_EPIC
 } from "../store/actions";
 import { DispatchProp } from "react-redux";
-import { store } from "..";
-
 const { ipcRenderer = null } = window.require ? window.require("electron") : {};
 
 export function initLisenter({ dispatch }: DispatchProp) {
+  ipcRenderer.on(
+    "readed",
+    (event: any, param: { filePath: string; content: string }) => {
+      const { filePath, content: payload } = param;
+      localStorage.setItem("filePath", filePath);
+      dispatch({ type: SET_CONTENT, payload });
+    }
+  );
+
   // 卸载文件
   ipcRenderer.on("unread-file", () => dispatch({ type: UNREAD_FILE_EPIC }));
   //   扫描项目完成
@@ -35,10 +43,6 @@ export function initLisenter({ dispatch }: DispatchProp) {
       content: ContentReducer
     });
   });
-  //   如果有缓存的文件路径，就直接读取
-  const filePath = localStorage.getItem("filePath");
-  if (filePath) {
-    ipcRenderer.send("open-file", filePath);
-  }
+
   return () => ipcRenderer.removeAllListeners();
 }

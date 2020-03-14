@@ -40,7 +40,9 @@ export function ImportPageInner(props: IProps) {
   }, [history, translations]);
   const [language, setLanguage] = useState<string>("ko");
   const [keywordsList, setKeywordsList] = useState<string>("__");
-  const [lastTranslator, setLastTranslator] = useState<string>("dimitri@staritgp.com");
+  const [lastTranslator, setLastTranslator] = useState<string>(
+    "dimitri@staritgp.com"
+  );
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     ipcRenderer.send("scan-files", {
       transformHeaders: {
