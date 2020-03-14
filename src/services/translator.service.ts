@@ -27,7 +27,9 @@ export type Lang =
 export const Lang: { [index: string]: Lang } = {
   "": "zh",
   "zh-cn": "zh",
-  zh_CN: "zh"
+  zh_CN: "zh",
+  ko: "kor",
+  en: "en"
 };
 interface queryParam {
   // 多个query可以用\n连接  如 query='apple\norange\nbanana\npear'

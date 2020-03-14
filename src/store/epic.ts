@@ -3,31 +3,12 @@ import { AnyAction } from "redux";
 import { combineEpics, ofType, StateObservable } from "redux-observable";
 import { interval, of } from "rxjs";
 import { Observable } from "rxjs/internal/Observable";
-import {
-  map,
-  mapTo,
-  mergeMap,
-  skip,
-  switchMap,
-  take,
-  tap
-} from "rxjs/operators";
+import { map, mapTo, mergeMap, skip, switchMap, take, tap } from "rxjs/operators";
 import { ActionBean } from "../bean/action.bean";
 import { sourceLanguage } from "../bean/content.bean";
 import { BaiduTransResultBean } from "../bean/trans_result.bean";
 import { Lang, translatorByBaidu } from "../services/translator.service";
-import {
-  CHANGE_CONTENT,
-  CHANGE_CONTENT_EPIC,
-  FETCH_CONTENT,
-  PRE_TRANSLATOR,
-  SELECT_ROW,
-  SELECT_ROW_EPIC,
-  UNREAD_FILE,
-  UNREAD_FILE_EPIC,
-  MERGE_CONTENT_EPIC,
-  MERGE_CONTENT
-} from "./actions";
+import { CHANGE_CONTENT, CHANGE_CONTENT_EPIC, FETCH_CONTENT, MERGE_CONTENT, MERGE_CONTENT_EPIC, PRE_TRANSLATOR, SELECT_ROW, SELECT_ROW_EPIC, UNREAD_FILE, UNREAD_FILE_EPIC } from "./actions";
 import { RootReducer } from "./reduce";
 
 /**
@@ -132,14 +113,16 @@ export const preTranslator = (
                 ),
                 map(({ msgId, content }) => {
                   // 全局翻译只取第一个结果
-                  const { trans_result: [result] = [] } = content;
+                  const { trans_result: [result = { dst: "" }] = [] } = content;
                   const { dst } = result;
                   return { key: msgId, value: dst };
                 })
               );
           },
-          ({ ContentReducer }, { key, value }) => ({ key, value })
+          // eslint-disable-next-line no-empty-pattern
+          ({}, { key, value }) => ({ key, value })
         ),
+        // retry(),
         map(payload => ({ type: CHANGE_CONTENT, payload }))
       )
     )
