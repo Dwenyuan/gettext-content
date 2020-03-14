@@ -17,7 +17,7 @@ const btnProps: ButtonProps = {
 };
 interface IProps extends TranslationBean, RouteComponentProps, DispatchProp {}
 export function ImportPageInner(props: IProps) {
-  const { charset, header, translations, history } = props;
+  const { charset, translations, history } = props;
   console.log(props);
 
   const [path, setPath] = useState();
@@ -47,10 +47,14 @@ export function ImportPageInner(props: IProps) {
         onClick={() => ipcRenderer.send("open-dir")}
         color="primary"
       >
-        选择文件夹
+        扫描文件夹
       </Button>
       <p>{path}</p>
-      <Button {...btnProps} color="secondary">
+      <Button
+        {...btnProps}
+        onClick={() => ipcRenderer.send("open-file")}
+        color="secondary"
+      >
         打开PO文件
       </Button>
     </Grid>

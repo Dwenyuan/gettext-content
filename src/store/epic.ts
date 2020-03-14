@@ -1,9 +1,14 @@
+import { isEmpty } from "lodash";
 import { AnyAction } from "redux";
 import { combineEpics, ofType, StateObservable } from "redux-observable";
+import { interval, of } from "rxjs";
 import { Observable } from "rxjs/internal/Observable";
-import { map, mergeMap, take, tap } from "rxjs/operators";
+import { map, mapTo, mergeMap, skip, switchMap, take, tap } from "rxjs/operators";
 import { ActionBean } from "../bean/action.bean";
-import { FETCH_CONTENT, SELECT_ROW, SELECT_ROW_EPIC } from "./actions";
+import { sourceLanguage } from "../bean/content.bean";
+import { BaiduTransResultBean } from "../bean/trans_result.bean";
+import { Lang, translatorByBaidu } from "../services/translator.service";
+import { CHANGE_CONTENT, CHANGE_CONTENT_EPIC, FETCH_CONTENT, PRE_TRANSLATOR, SELECT_ROW, SELECT_ROW_EPIC, UNREAD_FILE, UNREAD_FILE_EPIC } from "./actions";
 import { RootReducer } from "./reduce";
 
 /**
@@ -34,5 +39,82 @@ export const selectRow = (
     tap(console.log),
     map(payload => ({ type: SELECT_ROW, payload }))
   );
-
-export const rootEpic = combineEpics(fetchContent, selectRow);
+export const unreadFile = (
+  action$: Observable<ActionBean<string>>,
+  state$: Observable<RootReducer>
+) => action$.pipe(ofType(UNREAD_FILE_EPIC), mapTo({ type: UNREAD_FILE }));
+export const changeContent = (
+  action$: Observable<ActionBean<{ key: string; value: string }>>,
+  state$: Observable<RootReducer>
+) =>
+  action$.pipe(
+    ofType(CHANGE_CONTENT_EPIC),
+    map(({ payload }) => ({ type: CHANGE_CONTENT, payload }))
+  );
+export const preTranslator = (
+  action$: Observable<ActionBean<null>>,
+  state$: Observable<RootReducer>
+) =>
+  action$.pipe(
+    ofType(PRE_TRANSLATOR),
+    switchMap(() =>
+      state$.pipe(
+        take(1),
+        mergeMap(
+          ({ ContentReducer }) => {
+            const { Language = "" } = ContentReducer.headers;
+            const translations = ContentReducer.translations[""] || {};
+            const readyMsgIds = Object.keys(translations).filter(f => {
+              if (!f) {
+                return false;
+              }
+              const { msgstr = [] } = translations[f];
+              const [first] = msgstr;
+              return isEmpty(msgstr) || !first;
+            });
+            return interval(1200)
+              .pipe(
+                mergeMap(
+                  index => of(...readyMsgIds).pipe(skip(index), take(1)),
+                  (x, y) => y,
+                  1
+                ),
+                tap(x => console.timeStamp("fanyi=> " + x))
+              )
+              .pipe(
+                mergeMap(
+                  query =>
+                    translatorByBaidu({
+                      query,
+                      from: sourceLanguage,
+                      to: Lang[Language]
+                    }),
+                  (msgId, res) => ({ msgId, res }),
+                  1
+                ),
+                mergeMap(
+                  ({ res }) => res.json<BaiduTransResultBean>(),
+                  ({ msgId }, content) => ({ msgId, content }),
+                  1
+                ),
+                map(({ msgId, content }) => {
+                  // 全局翻译只取第一个结果
+                  const { trans_result: [result] = [] } = content;
+                  const { dst } = result;
+                  return { key: msgId, value: dst };
+                })
+              );
+          },
+          ({ ContentReducer }, { key, value }) => ({ key, value })
+        ),
+        map(payload => ({ type: CHANGE_CONTENT, payload }))
+      )
+    )
+  );
+export const rootEpic = combineEpics(
+  fetchContent,
+  selectRow,
+  unreadFile,
+  preTranslator,
+  changeContent
+);

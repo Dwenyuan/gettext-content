@@ -13,8 +13,15 @@ const { ipcRenderer } = window.require
   : { ipcRenderer: new EventEmitter() };
 
 const store = configureStore();
-ipcRenderer.on("readed", (event: any, content: string) =>
-  store.dispatch({ type: SET_CONTENT, payload: content })
+ipcRenderer.on(
+  "readed",
+  (
+    event: any,
+    { filePath, content: payload }: { filePath: string; content: string }
+  ) => {
+    localStorage.setItem("filePath", filePath);
+    store.dispatch({ type: SET_CONTENT, payload });
+  }
 );
 // ipcRenderer.on("readed", console.log);
 ReactDOM.render(

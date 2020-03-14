@@ -16,6 +16,7 @@ import { Translation } from "../bean/content.bean";
 import { BaiduTransResultBean } from "../bean/trans_result.bean";
 import { translatorByBaidu } from "../services/translator.service";
 import { RootReducer } from "../store/reduce";
+import { PRE_TRANSLATOR } from "../store/actions";
 
 const useStyles = makeStyles({
   card: {
@@ -30,7 +31,8 @@ interface IProps extends Translation, DispatchProp {}
 export const HelperList = connect(
   ({ SelectedTranslation }: RootReducer) => SelectedTranslation
 )((props: IProps) => {
-  const { msgid = "", msgstr, comments: { reference = "" } = {} } = props || {};
+  const { msgid = "", msgstr, comments: { reference = "" } = {}, dispatch } =
+    props || {};
   const classes = useStyles();
   const [baiduTrans = {}, setBaiduTrans] = useState<BaiduTransResultBean>();
   useEffect(() => {
@@ -42,85 +44,71 @@ export const HelperList = connect(
       });
   }, [msgid]);
   const { trans_result = [] } = baiduTrans as BaiduTransResultBean;
+  function preTranslator() {
+    dispatch({ type: PRE_TRANSLATOR });
+  }
   return (
     <React.Fragment>
-      <Paper hidden={!msgid} style={{ padding: 5 }}>
-        <Card className={classes.card}>
-          <CardContent>
-            <Typography variant="subtitle1" color="primary">
-              {msgid}
-            </Typography>
-          </CardContent>
-        </Card>
-        <Card className={classes.card}>
-          <CardContent>
-            <Typography variant="body2" color="textSecondary">
-              百度翻译
-            </Typography>
-            <Typography
-              className={classes.translator}
-              variant="body1"
-              color="initial"
+      <Card className={classes.card}>
+        <CardContent>
+          <Typography variant="subtitle1" color="primary">
+            <Button
+              onClick={preTranslator}
+              variant="contained"
+              color="primary"
+              style={{ width: "100%" }}
             >
-              <List dense>
-                {trans_result.map(({ src, dst }) => (
-                  <ListItem button>
-                    <ListItemText primary={dst} />
-                  </ListItem>
-                ))}
-              </List>
-            </Typography>
-          </CardContent>
-          <CardActions>
-            <Button size="small">应用</Button>
-          </CardActions>
-        </Card>
-        <Card className={classes.card}>
-          <CardContent>
-            <Typography variant="body2" color="textSecondary">
-              bing翻译
-            </Typography>
-            <Typography
-              className={classes.translator}
-              variant="body1"
-              color="initial"
-            >
-              bing翻译
-            </Typography>
-          </CardContent>
-          <CardActions>
-            <Button size="small">应用</Button>
-          </CardActions>
-        </Card>
-        <Card className={classes.card}>
-          <CardContent>
-            <Typography variant="body2" color="textSecondary">
-              谷歌翻译
-            </Typography>
-            <Typography
-              className={classes.translator}
-              variant="body1"
-              color="initial"
-            >
-              bing翻译
-            </Typography>
-          </CardContent>
-          <CardActions>
-            <Button size="small">应用</Button>
-          </CardActions>
-        </Card>
-        {reference && reference.split("\n").length > 0 && (
-          <Card>
-            <CardContent>
-              {reference.split("\n").map(v => (
-                <Typography variant="caption" display="block" gutterBottom>
-                  {v}
-                </Typography>
+              预翻译
+            </Button>
+          </Typography>
+        </CardContent>
+      </Card>
+      <Card className={classes.card}>
+        <CardContent>
+          <Typography variant="subtitle1" color="primary">
+            {msgid ? msgid : <Button onClick={preTranslator}>预翻译</Button>}
+          </Typography>
+        </CardContent>
+      </Card>
+      <Card className={classes.card}>
+        <CardContent>
+          <Typography variant="body2" color="textSecondary">
+            百度翻译
+          </Typography>
+          <Typography
+            className={classes.translator}
+            variant="body1"
+            color="initial"
+          >
+            <List dense>
+              {trans_result.map(({ src, dst }) => (
+                <ListItem key={src} button>
+                  <ListItemText primary={dst} />
+                </ListItem>
               ))}
-            </CardContent>
-          </Card>
-        )}
-      </Paper>
+            </List>
+          </Typography>
+        </CardContent>
+        <CardActions>
+          <Button size="small">应用</Button>
+        </CardActions>
+      </Card>
+      {reference && reference.split("\n").length > 0 && (
+        <Card>
+          <CardContent>
+            {reference.split("\n").map(v => (
+              <Typography
+                key={v}
+                variant="caption"
+                display="block"
+                gutterBottom
+              >
+                {v}
+              </Typography>
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </React.Fragment>
   );
 });

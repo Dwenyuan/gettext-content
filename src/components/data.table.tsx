@@ -5,12 +5,13 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow
+  TableRow,
+  TextField
 } from "@material-ui/core";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { connect, DispatchProp } from "react-redux";
-import { TranslationBean } from "../bean/content.bean";
-import { SELECT_ROW_EPIC } from "../store/actions";
+import { Translation, TranslationBean } from "../bean/content.bean";
+import { CHANGE_CONTENT_EPIC, SELECT_ROW_EPIC } from "../store/actions";
 import { mapTanslation } from "../store/mapStateToProps";
 const useStyle = makeStyles({
   container: {
@@ -22,8 +23,12 @@ export function DataTableInner(props: IProps) {
   const classes = useStyle();
   const { translations, dispatch } = props;
   console.log(translations);
-  const list = translations[""];
+  // const list = translations[""];
+  const [list, setList] = useState<{ [index: string]: Translation }>({});
   const keys = Object.keys(list || {});
+  useEffect(() => {
+    setList(translations[""]);
+  }, [setList, translations]);
   const tableBody = keys
     .filter(key => !!key)
     .map(key => (
@@ -32,7 +37,25 @@ export function DataTableInner(props: IProps) {
         onClick={() => dispatch({ type: SELECT_ROW_EPIC, payload: key })}
       >
         <TableCell>{key}</TableCell>
-        <TableCell>{list[key].msgstr}</TableCell>
+        <TableCell>
+          <TextField
+            onChange={onChange({ dispatch }, key)}
+            // onChange={e => {
+            //   const value = e.target.value;
+            //   setList(pre => ({
+            //     ...list,
+            //     [key]: {
+            //       ...list[key],
+            //       msgstr: [value]
+            //     }
+            //   }));
+            // }}
+            id="standard-basic"
+            multiline
+            rowsMax="1"
+            value={list[key].msgstr}
+          />
+        </TableCell>
       </TableRow>
     ));
   return (
@@ -49,6 +72,14 @@ export function DataTableInner(props: IProps) {
     </TableContainer>
   );
 }
+function onChange({ dispatch }: DispatchProp, key: string) {
+  return ({
+    target: { value }
+  }: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    dispatch({ type: CHANGE_CONTENT_EPIC, payload: { key, value } });
+  };
+}
+
 export const DataTable = connect<
   any,
   any,

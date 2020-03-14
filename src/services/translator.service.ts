@@ -21,6 +21,14 @@ export type Lang =
   | "el" // 希腊
   | "cht"; // 繁体中文
 
+/**
+ * 不符合规范的语言对照表
+ */
+export const Lang: { [index: string]: Lang } = {
+  "": "zh",
+  "zh-cn": "zh",
+  zh_CN: "zh"
+};
 interface queryParam {
   // 多个query可以用\n连接  如 query='apple\norange\nbanana\npear'
   query: string;
