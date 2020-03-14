@@ -12,7 +12,7 @@ const { ipcRenderer } = window.require
   ? window.require("electron")
   : { ipcRenderer: new EventEmitter() };
 
-const store = configureStore();
+export const store = configureStore();
 ipcRenderer.on(
   "readed",
   (

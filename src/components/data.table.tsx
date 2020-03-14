@@ -15,7 +15,7 @@ import { CHANGE_CONTENT_EPIC, SELECT_ROW_EPIC } from "../store/actions";
 import { mapTanslation } from "../store/mapStateToProps";
 const useStyle = makeStyles({
   container: {
-    height: "calc(100vh - 260px - 21px - 40px)"
+    height: "calc(100vh - 28px)"
   }
 });
 interface IProps extends TranslationBean, DispatchProp {}
@@ -40,16 +40,6 @@ export function DataTableInner(props: IProps) {
         <TableCell>
           <TextField
             onChange={onChange({ dispatch }, key)}
-            // onChange={e => {
-            //   const value = e.target.value;
-            //   setList(pre => ({
-            //     ...list,
-            //     [key]: {
-            //       ...list[key],
-            //       msgstr: [value]
-            //     }
-            //   }));
-            // }}
             id="standard-basic"
             multiline
             rowsMax="1"
