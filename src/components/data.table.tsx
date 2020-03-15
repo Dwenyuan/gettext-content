@@ -73,6 +73,7 @@ export function DataTableInner(props: IProps) {
             <TableCell>
               <TextField
                 fullWidth
+                // FIXME: 这里修改的话会取消待处理的标记,在过滤状态下,列表项会消失
                 onChange={onChange({ dispatch }, key)}
                 id="standard-basic"
                 multiline
