@@ -18,7 +18,7 @@ function App({ dispatch, ContentReducer, TitleReducer, GlobalStatus }: IProps) {
     return destory;
   }, [charset, dispatch, headers, translations]);
   useEffect(() => {
-    //   如果有缓存的文件路径，就直接读取
+    //TODO  如果有缓存的文件路径，就直接读取, 这里还要添加以下校验操作,如果文件不存在的话就清除掉缓存
     const filePath = localStorage.getItem("filePath");
     if (filePath) {
       ipcRenderer.send("open-file", filePath);
