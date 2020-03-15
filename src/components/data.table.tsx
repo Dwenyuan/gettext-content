@@ -27,7 +27,7 @@ interface IProps extends RootReducer, DispatchProp {}
 export function DataTableInner(props: IProps) {
   const {
     ContentReducer: { translations },
-    SelectedTranslation: { selectedId },
+    SelectedTranslation: { selectedId = undefined } = {},
     dispatch
   } = props;
 
@@ -149,17 +149,12 @@ function getFiletedList(param: {
         msgstr: [first] = [],
         comments: { flag = undefined } = {}
       } = list[key];
-      if (onlyTodo) {
-        return !first || flag === FUZZY;
-      } else {
-        return true;
-      }
+      return !onlyTodo || !first || flag === FUZZY;
     })
-    .filter(f =>
-      new RegExp(keyword.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), "i").test(
-        f
-      )
-    );
+    .filter(f => {
+      const nextWord = keyword.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+      return new RegExp(nextWord, "i").test(f);
+    });
 }
 function onChange({ dispatch }: DispatchProp, key: string) {
   return ({

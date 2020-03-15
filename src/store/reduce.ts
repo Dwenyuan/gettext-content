@@ -1,18 +1,44 @@
-import { zipObjectDeep } from "lodash";
+import { zipObjectDeep, isEmpty } from "lodash";
 import { combineReducers } from "redux";
 import { ActionBean } from "../bean/action.bean";
-import { TranslationBean } from "../bean/content.bean";
+import { Translation, TranslationBean } from "../bean/content.bean";
 import { FUZZY } from "../services/config";
 import {
   CHANGE_CONTENT,
   MERGE_CONTENT,
   SELECT_ROW,
   SET_CONTENT,
-  UNREAD_FILE
+  UNREAD_FILE,
+  CHAGNE_TITLE,
+  CHANGE_SAVING_STATUS
 } from "./actions";
+import { GlobalStatusBean } from "../bean/global_status.bean";
 export interface RootReducer {
+  GlobalStatus: GlobalStatusBean;
+  TitleReducer: { title: string };
   ContentReducer: TranslationBean;
-  SelectedTranslation: { selectedId?: string };
+  SelectedTranslation?: { selectedId?: string };
+}
+type TransObject = { [index: string]: Translation };
+function mergeTrans(translationsInner: TransObject) {
+  return (
+    pre: TransObject,
+    next: { key: string; value: string; fuzzy: number }
+  ) => {
+    const { key, value, fuzzy } = next;
+    const { comments } = translationsInner[key] || {};
+    return {
+      ...pre,
+      [key]: {
+        ...translationsInner[key],
+        msgstr: [value],
+        comments: {
+          ...comments,
+          flag: fuzzy ? FUZZY : undefined
+        }
+      }
+    };
+  };
 }
 export function ContentReducer(
   state: TranslationBean = { charset: "", headers: {}, translations: {} },
@@ -46,26 +72,37 @@ export function ContentReducer(
         }
       };
     case CHANGE_CONTENT:
-      const { key, value, fuzzy } = action.payload;
-      const { comments } = translationsInner[key] || {};
-      const result = {
-        ...state,
-        translations: {
-          ...state.translations,
-          "": {
-            ...translationsInner,
-            [key]: {
-              ...translationsInner[key],
-              msgstr: [value],
-              comments: {
-                ...comments,
-                flag: fuzzy ? FUZZY : undefined
-              }
+      if (!Array.isArray(action.payload) && !isEmpty(action.payload)) {
+        const nextTranslations = [action.payload].reduce(
+          mergeTrans(translationsInner),
+          translationsInner
+        );
+        return {
+          ...state,
+          translations: {
+            ...state.translations,
+            "": {
+              ...nextTranslations
             }
           }
-        }
-      };
-      return result;
+        };
+      }
+      if (Array.isArray(action.payload) && !isEmpty(action.payload)) {
+        const nextTranslations = action.payload.reduce(
+          mergeTrans(translationsInner),
+          translationsInner
+        );
+        return {
+          ...state,
+          translations: {
+            ...state.translations,
+            "": {
+              ...nextTranslations
+            }
+          }
+        };
+      }
+      return state;
     default:
       return { ...state };
   }
@@ -81,7 +118,38 @@ export function SelectedTranslation(
       return state;
   }
 }
+export function TitleReducer(
+  state: { title: string } = { title: "PO-EDID" },
+  action: ActionBean<string>
+) {
+  switch (action.type) {
+    case CHAGNE_TITLE:
+      if (action.payload) {
+        localStorage.setItem("filePath", action.payload);
+      } else {
+        localStorage.removeItem("filePath");
+      }
+      return { title: "PO-EDID   " + action.payload };
+    default:
+      return state;
+  }
+}
+
+export function GlobalStatus(
+  state: GlobalStatusBean = { saving: false },
+  action: ActionBean<GlobalStatusBean>
+): GlobalStatusBean {
+  switch (action.type) {
+    case CHANGE_SAVING_STATUS:
+      const { saving = false } = action.payload! || {};
+      return { ...state, saving };
+    default:
+      return state;
+  }
+}
 export const rootReducer = combineReducers({
+  GlobalStatus,
+  TitleReducer,
   ContentReducer,
   SelectedTranslation
 });

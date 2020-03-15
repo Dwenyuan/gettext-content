@@ -29,3 +29,15 @@ export const UNREAD_FILE = "UNREAD_FILE";
 
 /**翻译去除已有的全部内容 */
 export const PRE_TRANSLATOR = "PRE_TRANSLATOR";
+
+/**
+ * 修改页面标题
+ */
+export const CHAGNE_TITLE = "CHAGNE_TITLE";
+export const CHAGNE_TITLE_EPIC = "CHAGNE_TITLE_EPIC";
+
+/**
+ * 保存文件的loading状态
+ */
+export const CHANGE_SAVING_STATUS = "CHANGE_SAVING_STATUS";
+export const CHANGE_SAVING_STATUS_EPIC = "CHANGE_SAVING_STATUS_EPIC";

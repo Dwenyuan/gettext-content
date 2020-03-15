@@ -1,4 +1,4 @@
-import { isEmpty } from "lodash";
+import { isEmpty, isUndefined } from "lodash";
 import { AnyAction } from "redux";
 import { combineEpics, ofType, StateObservable } from "redux-observable";
 import { interval, of } from "rxjs";
@@ -10,13 +10,16 @@ import {
   skip,
   switchMap,
   take,
-  tap
+  tap,
+  retry
 } from "rxjs/operators";
 import { ActionBean } from "../bean/action.bean";
-import { sourceLanguage } from "../bean/content.bean";
+import { sourceLanguage, TranslationBean } from "../bean/content.bean";
 import { BaiduTransResultBean } from "../bean/trans_result.bean";
 import { Lang, translatorByBaidu } from "../services/translator.service";
 import {
+  CHAGNE_TITLE,
+  CHAGNE_TITLE_EPIC,
   CHANGE_CONTENT,
   CHANGE_CONTENT_EPIC,
   FETCH_CONTENT,
@@ -60,12 +63,7 @@ export const selectRow = (
 export const unreadFile = (
   action$: Observable<ActionBean<string>>,
   state$: Observable<RootReducer>
-) =>
-  action$.pipe(
-    ofType(UNREAD_FILE_EPIC),
-    tap(() => localStorage.removeItem("filePath")),
-    mapTo({ type: UNREAD_FILE })
-  );
+) => action$.pipe(ofType(UNREAD_FILE_EPIC), mapTo({ type: UNREAD_FILE }));
 export const changeContent = (
   action$: Observable<ActionBean<{ key: string; value: string }>>,
   state$: Observable<RootReducer>
@@ -74,6 +72,50 @@ export const changeContent = (
     ofType(CHANGE_CONTENT_EPIC),
     map(({ payload }) => ({ type: CHANGE_CONTENT, payload }))
   );
+
+/**
+ * 从翻译结构中提取要翻译的文本
+ *
+ * @param {{
+ *   ContentReducer: TranslationBean;
+ * }} {
+ *   ContentReducer
+ * }
+ * @returns
+ */
+export function exactQueryStr({
+  ContentReducer
+}: {
+  ContentReducer: TranslationBean;
+}) {
+  const translations = ContentReducer.translations[""] || {};
+  return Object.keys(translations).filter(f => {
+    if (!f) {
+      return false;
+    }
+    const { msgstr = [] } = translations[f];
+    const [first] = msgstr;
+    return isEmpty(msgstr) || !first;
+  });
+}
+/**
+ * 将要查询的文本数组用 \n 拼接起来
+ * 如果过长的话就分组
+ * @export
+ * @param {string[]} readyMsgIds
+ * @returns
+ */
+export function spliceStr(readyMsgIds: string[]) {
+  return readyMsgIds.reduce((pre, next) => {
+    const current = pre[pre.length - 1];
+    if (isUndefined(current) || current.length + next.length > 2e3) {
+      return pre.concat([next]);
+    } else {
+      pre[pre.length - 1] = current + " \n " + next;
+      return pre;
+    }
+  }, [] as string[]);
+}
 export const preTranslator = (
   action$: Observable<ActionBean<null>>,
   state$: Observable<RootReducer>
@@ -83,60 +125,63 @@ export const preTranslator = (
     switchMap(() =>
       state$.pipe(
         take(1),
-        mergeMap(
-          ({ ContentReducer }) => {
-            const { Language = "" } = ContentReducer.headers;
-            const translations = ContentReducer.translations[""] || {};
-            const readyMsgIds = Object.keys(translations).filter(f => {
-              if (!f) {
-                return false;
-              }
-              const { msgstr = [] } = translations[f];
-              const [first] = msgstr;
-              return isEmpty(msgstr) || !first;
-            });
-            return interval(1200)
-              .pipe(
-                mergeMap(
-                  index => of(...readyMsgIds).pipe(skip(index), take(1)),
-                  (x, y) => y,
-                  1
-                ),
-                tap(x => console.timeStamp("fanyi=> " + x))
+        mergeMap(({ ContentReducer }) => {
+          const { Language = "" } = ContentReducer.headers;
+          const transSource = exactQueryStr({ ContentReducer });
+          if (sourceLanguage === Lang[Language]) {
+            return of(transSource.map(key => ({ key, value: key })));
+          }
+          const querys = spliceStr(transSource);
+          return interval(3e3)
+            .pipe(
+              mergeMap(
+                index => of(...querys).pipe(skip(index), take(1)),
+                (x, y) => y,
+                1
               )
-              .pipe(
-                mergeMap(
-                  query =>
-                    translatorByBaidu({
-                      query,
-                      from: sourceLanguage,
-                      to: Lang[Language]
-                    }),
-                  (msgId, res) => ({ msgId, res }),
-                  1
-                ),
-                mergeMap(
-                  ({ res }) => res.json<BaiduTransResultBean>(),
-                  ({ msgId }, content) => ({ msgId, content }),
-                  1
-                ),
-                map(({ msgId, content }) => {
-                  // 全局翻译只取第一个结果
-                  const { trans_result: [result = { dst: "" }] = [] } = content;
-                  const { dst } = result;
-                  return { key: msgId, value: dst, fuzzy: true };
-                })
-              );
-          },
-          // eslint-disable-next-line no-empty-pattern
-          ({}, { key, value }) => ({ key, value })
-        ),
-        // retry(),
+            )
+            .pipe(
+              mergeMap(
+                query =>
+                  translatorByBaidu({
+                    query,
+                    from: sourceLanguage,
+                    to: Lang[Language]
+                  }),
+                (_d, res) => ({ res }),
+                1
+              ),
+              mergeMap(
+                ({ res }) => res.json<BaiduTransResultBean>(),
+                (_d, content) => ({ content }),
+                1
+              ),
+              map(({ content }) => {
+                const { trans_result = [] } = content;
+                return trans_result.map(({ src, dst }) => ({
+                  key: src,
+                  value: dst,
+                  fuzzy: true
+                }));
+              })
+            );
+        }),
+        retry(),
         map(payload => ({ type: CHANGE_CONTENT, payload }))
       )
     )
   );
+
+export const changeTitle = (
+  action$: Observable<ActionBean<null>>,
+  state$: Observable<RootReducer>
+) =>
+  action$.pipe(
+    ofType(CHAGNE_TITLE_EPIC),
+    map(({ payload }) => ({ type: CHAGNE_TITLE, payload }))
+  );
 export const rootEpic = combineEpics(
+  changeTitle,
   fetchContent,
   selectRow,
   unreadFile,

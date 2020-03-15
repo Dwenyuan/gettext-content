@@ -1,20 +1,18 @@
 import React, { useEffect } from "react";
+import Helmet from "react-helmet";
 import { connect, DispatchProp } from "react-redux";
-import {
-  HashRouter as Router,
-  Redirect,
-  Route,
-  Switch
-} from "react-router-dom";
-import { TranslationBean } from "./bean/content.bean";
+import { HashRouter as Router, Route, Switch } from "react-router-dom";
 import { ImportPage } from "./pages/import-page";
 import TranslatorPage from "./pages/translator-page";
 import { initLisenter } from "./services/lisenter";
-import { mapTanslation } from "./store/mapStateToProps";
+import { RootReducer } from "./store/reduce";
 const { ipcRenderer = null } = window.require ? window.require("electron") : {};
 
-interface IProps extends DispatchProp, TranslationBean {}
-function App({ dispatch, headers, translations, charset }: IProps) {
+interface IProps extends DispatchProp, RootReducer {}
+function App({ dispatch, ContentReducer, TitleReducer, GlobalStatus }: IProps) {
+  const { headers, translations, charset } = ContentReducer;
+  const { title } = TitleReducer;
+  const { saving } = GlobalStatus;
   useEffect(() => {
     const destory = initLisenter({ dispatch });
     return destory;
@@ -29,6 +27,12 @@ function App({ dispatch, headers, translations, charset }: IProps) {
   }, []);
   return (
     <Router basename="/" hashType="hashbang">
+      <Helmet>
+        <meta charSet="utf-8" />
+        <title>
+          {title} {saving ? "saving..." : ""}
+        </title>
+      </Helmet>
       <Switch>
         <Route exact path="/" component={ImportPage}></Route>
         <Route exact path="/translator" component={TranslatorPage}></Route>
@@ -37,4 +41,10 @@ function App({ dispatch, headers, translations, charset }: IProps) {
   );
 }
 
-export default connect(mapTanslation)(App);
+export default connect(
+  ({ ContentReducer, TitleReducer, GlobalStatus }: RootReducer) => ({
+    ContentReducer,
+    TitleReducer,
+    GlobalStatus
+  })
+)(App);

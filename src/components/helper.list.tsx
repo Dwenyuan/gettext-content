@@ -37,7 +37,7 @@ interface IProps extends RootReducer, DispatchProp {}
 export const HelperList = connect((root: RootReducer) => root)(
   (props: IProps) => {
     const {
-      SelectedTranslation: { selectedId },
+      SelectedTranslation: { selectedId = undefined } = {},
       ContentReducer: {
         headers: { Language = "zh" },
         translations
