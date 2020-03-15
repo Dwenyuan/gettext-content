@@ -7,11 +7,10 @@ import {
   map,
   mapTo,
   mergeMap,
+  retry,
   skip,
   switchMap,
-  take,
-  tap,
-  retry
+  take
 } from "rxjs/operators";
 import { ActionBean } from "../bean/action.bean";
 import { sourceLanguage, TranslationBean } from "../bean/content.bean";
