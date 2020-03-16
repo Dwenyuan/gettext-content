@@ -10,7 +10,8 @@ import {
   retry,
   skip,
   switchMap,
-  take
+  take,
+  catchError
 } from "rxjs/operators";
 import { ActionBean } from "../bean/action.bean";
 import { sourceLanguage, TranslationBean } from "../bean/content.bean";
@@ -107,7 +108,8 @@ export function exactQueryStr({
 export function spliceStr(readyMsgIds: string[]) {
   return readyMsgIds.reduce((pre, next) => {
     const current = pre[pre.length - 1];
-    if (isUndefined(current) || current.length + next.length > 2e3) {
+    // 单次翻译的长度还是不超过1500吧，encode之后可能会过长
+    if (isUndefined(current) || current.length + next.length > 1e3) {
       return pre.concat([next]);
     } else {
       pre[pre.length - 1] = current + " \n " + next;
@@ -165,7 +167,7 @@ export const preTranslator = (
               })
             );
         }),
-        retry(),
+        catchError(err => of([])),
         map(payload => ({ type: CHANGE_CONTENT, payload }))
       )
     )

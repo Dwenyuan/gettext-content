@@ -9,9 +9,9 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  TextField
+  TextField,
+  Box
 } from "@material-ui/core";
-import orange from "@material-ui/core/colors/orange";
 import React, { useEffect, useState } from "react";
 import { connect, DispatchProp } from "react-redux";
 import { Translation } from "../bean/content.bean";
@@ -59,19 +59,20 @@ export function DataTableInner(props: IProps) {
       .map(key => {
         const { msgstr: [first] = [], comments: { flag = undefined } = {} } =
           list[key] || {};
+        const isFuzzy = flag === FUZZY || !first;
         return (
           <TableRow
-            style={{
-              backgroundColor: flag === FUZZY || !first ? orange[50] : ""
-            }}
             selected={selectedId === key}
             hover={true}
             key={key}
             onClick={() => dispatch({ type: SELECT_ROW_EPIC, payload: key })}
           >
-            <TableCell>{key}</TableCell>
+            <TableCell>
+              <Box color={isFuzzy ? "warning.main" : ""}>{key}</Box>
+            </TableCell>
             <TableCell>
               <TextField
+                color={isFuzzy ? "primary" : undefined}
                 fullWidth
                 // FIXME: 这里修改的话会取消待处理的标记,在过滤状态下,列表项会消失
                 onChange={onChange({ dispatch }, key)}
@@ -97,7 +98,10 @@ export function DataTableInner(props: IProps) {
                   size="small"
                   variant="standard"
                   value={keyword}
-                  onChange={e => setKeyword(e.target.value)}
+                  onChange={e => {
+                    setCurrent(0);
+                    setKeyword(e.target.value);
+                  }}
                 ></TextField>
               </TableCell>
               <TableCell>
@@ -108,7 +112,10 @@ export function DataTableInner(props: IProps) {
                     <Switch
                       size="small"
                       checked={onlyTodo}
-                      onChange={e => setOnlyTodo(e.target.checked)}
+                      onChange={e => {
+                        setCurrent(0);
+                        setOnlyTodo(e.target.checked);
+                      }}
                       color="secondary"
                     />
                   }
