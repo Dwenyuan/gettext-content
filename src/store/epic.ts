@@ -3,34 +3,12 @@ import { AnyAction } from "redux";
 import { combineEpics, ofType, StateObservable } from "redux-observable";
 import { interval, of } from "rxjs";
 import { Observable } from "rxjs/internal/Observable";
-import {
-  map,
-  mapTo,
-  mergeMap,
-  retry,
-  skip,
-  switchMap,
-  take,
-  catchError
-} from "rxjs/operators";
+import { catchError, map, mapTo, mergeMap, skip, switchMap, take } from "rxjs/operators";
 import { ActionBean } from "../bean/action.bean";
 import { sourceLanguage, TranslationBean } from "../bean/content.bean";
 import { BaiduTransResultBean } from "../bean/trans_result.bean";
 import { Lang, translatorByBaidu } from "../services/translator.service";
-import {
-  CHAGNE_TITLE,
-  CHAGNE_TITLE_EPIC,
-  CHANGE_CONTENT,
-  CHANGE_CONTENT_EPIC,
-  FETCH_CONTENT,
-  MERGE_CONTENT,
-  MERGE_CONTENT_EPIC,
-  PRE_TRANSLATOR,
-  SELECT_ROW,
-  SELECT_ROW_EPIC,
-  UNREAD_FILE,
-  UNREAD_FILE_EPIC
-} from "./actions";
+import { CHAGNE_TITLE, CHAGNE_TITLE_EPIC, CHANGE_CONTENT, CHANGE_CONTENT_EPIC, FETCH_CONTENT, MERGE_CONTENT, MERGE_CONTENT_EPIC, PRE_TRANSLATOR, SELECT_ROW, SELECT_ROW_EPIC, UNREAD_FILE, UNREAD_FILE_EPIC } from "./actions";
 import { RootReducer } from "./reduce";
 
 /**

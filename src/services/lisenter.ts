@@ -23,6 +23,7 @@ export function initLisenter({ dispatch }: DispatchProp) {
   ipcRenderer.on("unread-file", () => dispatch({ type: UNREAD_FILE_EPIC }));
   //   扫描项目完成
   ipcRenderer.on("scan-finish", (e: any, message: any) => {
+    dispatch({ type: CHAGNE_TITLE_EPIC });
     dispatch({ type: SET_CONTENT, payload: message });
   });
 

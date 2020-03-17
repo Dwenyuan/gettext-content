@@ -58,6 +58,11 @@ export function ContentReducer(
         keys,
         keys.map(v => ({
           ...translationsInner[v],
+          comments: {
+            // 导入的情况下取消掉待处理的标示
+            ...(translationsInner[v].comments || {}),
+            flag: undefined
+          },
           msgstr: [payload[v]]
         }))
       );
@@ -129,7 +134,7 @@ export function TitleReducer(
       } else {
         localStorage.removeItem("filePath");
       }
-      return { title: "PO-EDID   " + action.payload };
+      return { title: "PO-EDID   " + action.payload || "" };
     default:
       return state;
   }

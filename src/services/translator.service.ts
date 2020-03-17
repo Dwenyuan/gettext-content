@@ -25,6 +25,7 @@ export type Lang =
  * 不符合规范的语言对照表
  */
 export const Lang: { [index: string]: Lang } = {
+  "zh": "zh",
   "": "zh",
   "zh-cn": "zh",
   zh_CN: "zh",
