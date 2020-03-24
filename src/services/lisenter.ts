@@ -1,12 +1,13 @@
+import { DispatchProp } from "react-redux";
 import { store } from "..";
 import {
+  CHAGNE_TITLE_EPIC,
+  CHANGE_SAVING_STATUS_EPIC,
   MERGE_CONTENT_EPIC,
   SET_CONTENT,
-  UNREAD_FILE_EPIC,
-  CHAGNE_TITLE_EPIC,
-  CHANGE_SAVING_STATUS_EPIC
+  UNREAD_FILE_EPIC
 } from "../store/actions";
-import { DispatchProp } from "react-redux";
+import { FUZZY } from "./config";
 const { ipcRenderer = null } = window.require ? window.require("electron") : {};
 
 export function initLisenter({ dispatch }: DispatchProp) {
@@ -30,7 +31,7 @@ export function initLisenter({ dispatch }: DispatchProp) {
   //   合并项目时内容读取完成
   ipcRenderer.on(
     "merge-file-readed",
-    (e: any, { content }: { [index: string]: string }) =>
+    (_e: any, { content }: { [index: string]: string }) =>
       dispatch({ type: MERGE_CONTENT_EPIC, payload: content })
   );
   // 从菜单栏接受保存文件的事件
@@ -47,6 +48,37 @@ export function initLisenter({ dispatch }: DispatchProp) {
       content: ContentReducer
     });
     ipcRenderer.once("save-file-complete", () => {
+      dispatch({ type: CHANGE_SAVING_STATUS_EPIC, payload: false });
+    });
+  });
+
+  // flag 表示是否只导出未翻译部分
+  ipcRenderer.on("export-file", (_e: any, flag: boolean) => {
+    dispatch({ type: CHANGE_SAVING_STATUS_EPIC, payload: true });
+    const { ContentReducer } = store.getState();
+    if (flag) {
+      const obj = ContentReducer.translations[""];
+      const content = Object.keys(obj)
+        .filter(f => {
+          const {
+            msgstr: [first] = [],
+            comments: { flag = undefined } = {}
+          } = obj[f];
+          return !first || flag === FUZZY;
+        })
+        .reduce((pre, next) => ({ ...pre, [next]: obj[next] }), {});
+      ipcRenderer.send("export-file", {
+        content: {
+          ...ContentReducer,
+          translations: {
+            "": content
+          }
+        }
+      });
+    } else {
+      ipcRenderer.send("export-file", { content: ContentReducer });
+    }
+    ipcRenderer.once("export-file-complete", () => {
       dispatch({ type: CHANGE_SAVING_STATUS_EPIC, payload: false });
     });
   });
