@@ -31,7 +31,9 @@ export interface TranslationBean {
   };
 }
 export interface Translation {
+  msgctxt?: string;
   msgid?: string;
+  msgid_plural?: string;
   comments?: Comment;
   msgstr?: string[];
 }

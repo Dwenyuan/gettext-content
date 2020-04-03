@@ -11,6 +11,9 @@ import { FUZZY } from "./config";
 const { ipcRenderer = null } = window.require ? window.require("electron") : {};
 
 export function initLisenter({ dispatch }: DispatchProp) {
+  if (!ipcRenderer) {
+    return;
+  }
   ipcRenderer.on(
     "readed",
     (event: any, param: { filePath: string; content: string }) => {

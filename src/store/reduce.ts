@@ -26,11 +26,11 @@ function mergeTrans(translationsInner: TransObject) {
     next: { key: string; value: string; fuzzy: number }
   ) => {
     const { key, value, fuzzy } = next;
-    const { comments } = translationsInner[key] || {};
+    const { comments, ...rest } = translationsInner[key] || {};
     return {
       ...pre,
       [key]: {
-        ...translationsInner[key],
+        ...rest,
         msgstr: [value],
         comments: {
           ...comments,
