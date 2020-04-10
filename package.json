@@ -53,6 +53,7 @@
       "last 1 safari version"
     ]
   },
+  "license": "GPL-3.0",
   "devDependencies": {
     "@types/lodash": "^4.14.149",
     "@types/mockjs": "^1.0.2",

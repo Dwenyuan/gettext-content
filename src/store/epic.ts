@@ -1,14 +1,35 @@
 import { isEmpty, isUndefined } from "lodash";
 import { AnyAction } from "redux";
-import { combineEpics, ofType, StateObservable } from "redux-observable";
+import { combineEpics, ofType } from "redux-observable";
 import { interval, of } from "rxjs";
 import { Observable } from "rxjs/internal/Observable";
-import { catchError, map, mapTo, mergeMap, skip, switchMap, take } from "rxjs/operators";
+import {
+  catchError,
+  map,
+  mapTo,
+  mergeMap,
+  skip,
+  switchMap,
+  take,
+} from "rxjs/operators";
 import { ActionBean } from "../bean/action.bean";
 import { sourceLanguage, TranslationBean } from "../bean/content.bean";
 import { BaiduTransResultBean } from "../bean/trans_result.bean";
 import { Lang, translatorByBaidu } from "../services/translator.service";
-import { CHAGNE_TITLE, CHAGNE_TITLE_EPIC, CHANGE_CONTENT, CHANGE_CONTENT_EPIC, FETCH_CONTENT, MERGE_CONTENT, MERGE_CONTENT_EPIC, PRE_TRANSLATOR, SELECT_ROW, SELECT_ROW_EPIC, UNREAD_FILE, UNREAD_FILE_EPIC } from "./actions";
+import {
+  CHANGE_TITLE,
+  CHANGE_TITLE_EPIC,
+  CHANGE_CONTENT,
+  CHANGE_CONTENT_EPIC,
+  FETCH_CONTENT,
+  MERGE_CONTENT,
+  MERGE_CONTENT_EPIC,
+  PRE_TRANSLATOR,
+  SELECT_ROW,
+  SELECT_ROW_EPIC,
+  UNREAD_FILE,
+  UNREAD_FILE_EPIC,
+} from "./actions";
 import { RootReducer } from "./reduce";
 
 /**
@@ -16,35 +37,26 @@ import { RootReducer } from "./reduce";
  * @param action$
  * @param state$
  */
-export const fetchContent = (
-  action$: Observable<AnyAction>,
-  state$: StateObservable<void>
-) => action$.pipe(ofType(FETCH_CONTENT));
+export const fetchContent = (action$: Observable<AnyAction>) =>
+  action$.pipe(ofType(FETCH_CONTENT));
 
 export const mergeContent = (
-  action$: Observable<ActionBean<{ [index: string]: string }>>,
-  state$: Observable<RootReducer>
+  action$: Observable<ActionBean<{ [index: string]: string }>>
 ) =>
   action$.pipe(
     ofType(MERGE_CONTENT_EPIC),
     map(({ payload }) => ({ type: MERGE_CONTENT, payload }))
   );
 
-export const selectRow = (
-  action$: Observable<ActionBean<string>>,
-  state$: Observable<RootReducer>
-) =>
+export const selectRow = (action$: Observable<ActionBean<string>>) =>
   action$.pipe(
     ofType(SELECT_ROW_EPIC),
     map(({ payload }) => ({ type: SELECT_ROW, payload }))
   );
-export const unreadFile = (
-  action$: Observable<ActionBean<string>>,
-  state$: Observable<RootReducer>
-) => action$.pipe(ofType(UNREAD_FILE_EPIC), mapTo({ type: UNREAD_FILE }));
+export const unreadFile = (action$: Observable<ActionBean<string>>) =>
+  action$.pipe(ofType(UNREAD_FILE_EPIC), mapTo({ type: UNREAD_FILE }));
 export const changeContent = (
-  action$: Observable<ActionBean<{ key: string; value: string }>>,
-  state$: Observable<RootReducer>
+  action$: Observable<ActionBean<{ key: string; value: string }>>
 ) =>
   action$.pipe(
     ofType(CHANGE_CONTENT_EPIC),
@@ -62,12 +74,12 @@ export const changeContent = (
  * @returns
  */
 export function exactQueryStr({
-  ContentReducer
+  ContentReducer,
 }: {
   ContentReducer: TranslationBean;
 }) {
   const translations = ContentReducer.translations[""] || {};
-  return Object.keys(translations).filter(f => {
+  return Object.keys(translations).filter((f) => {
     if (!f) {
       return false;
     }
@@ -108,24 +120,24 @@ export const preTranslator = (
           const { Language = "" } = ContentReducer.headers;
           const transSource = exactQueryStr({ ContentReducer });
           if (sourceLanguage === Lang[Language]) {
-            return of(transSource.map(key => ({ key, value: key })));
+            return of(transSource.map((key) => ({ key, value: key })));
           }
           const querys = spliceStr(transSource);
           return interval(3e3)
             .pipe(
               mergeMap(
-                index => of(...querys).pipe(skip(index), take(1)),
+                (index) => of(...querys).pipe(skip(index), take(1)),
                 (x, y) => y,
                 1
               )
             )
             .pipe(
               mergeMap(
-                query =>
+                (query) =>
                   translatorByBaidu({
                     query,
                     from: sourceLanguage,
-                    to: Lang[Language]
+                    to: Lang[Language],
                   }),
                 (_d, res) => ({ res }),
                 1
@@ -140,24 +152,22 @@ export const preTranslator = (
                 return trans_result.map(({ src, dst }) => ({
                   key: src,
                   value: dst,
-                  fuzzy: true
+                  fuzzy: true,
                 }));
               })
             );
         }),
-        catchError(err => of([])),
-        map(payload => ({ type: CHANGE_CONTENT, payload }))
+        catchError(() => of([])),
+        map((payload) => ({ type: CHANGE_CONTENT, payload }))
       )
     )
   );
 
 export const changeTitle = (
-  action$: Observable<ActionBean<null>>,
-  state$: Observable<RootReducer>
-) =>
+  action$: Observable<ActionBean<null>>) =>
   action$.pipe(
-    ofType(CHAGNE_TITLE_EPIC),
-    map(({ payload }) => ({ type: CHAGNE_TITLE, payload }))
+    ofType(CHANGE_TITLE_EPIC),
+    map(({ payload }) => ({ type: CHANGE_TITLE, payload }))
   );
 export const rootEpic = combineEpics(
   changeTitle,

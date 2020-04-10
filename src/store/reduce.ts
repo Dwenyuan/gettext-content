@@ -9,7 +9,7 @@ import {
   SELECT_ROW,
   SET_CONTENT,
   UNREAD_FILE,
-  CHAGNE_TITLE,
+  CHANGE_TITLE,
   CHANGE_SAVING_STATUS
 } from "./actions";
 import { GlobalStatusBean } from "../bean/global_status.bean";
@@ -124,17 +124,17 @@ export function SelectedTranslation(
   }
 }
 export function TitleReducer(
-  state: { title: string } = { title: "PO-EDID" },
+  state: { title: string } = { title: "PO-EDIT" },
   action: ActionBean<string>
 ) {
   switch (action.type) {
-    case CHAGNE_TITLE:
+    case CHANGE_TITLE:
       if (action.payload) {
         localStorage.setItem("filePath", action.payload);
       } else {
         localStorage.removeItem("filePath");
       }
-      return { title: "PO-EDID   " + action.payload || "" };
+      return { title: "PO-EDIT   " + action.payload || "" };
     default:
       return state;
   }

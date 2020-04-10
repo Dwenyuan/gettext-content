@@ -33,8 +33,8 @@ export const PRE_TRANSLATOR = "PRE_TRANSLATOR";
 /**
  * 修改页面标题
  */
-export const CHAGNE_TITLE = "CHAGNE_TITLE";
-export const CHAGNE_TITLE_EPIC = "CHAGNE_TITLE_EPIC";
+export const CHANGE_TITLE = "CHANGE_TITLE";
+export const CHANGE_TITLE_EPIC = "CHANGE_TITLE_EPIC";
 
 /**
  * 保存文件的loading状态

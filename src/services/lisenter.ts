@@ -1,7 +1,7 @@
 import { DispatchProp } from "react-redux";
 import { store } from "..";
 import {
-  CHAGNE_TITLE_EPIC,
+  CHANGE_TITLE_EPIC,
   CHANGE_SAVING_STATUS_EPIC,
   MERGE_CONTENT_EPIC,
   SET_CONTENT,
@@ -18,7 +18,7 @@ export function initLisenter({ dispatch }: DispatchProp) {
     "readed",
     (event: any, param: { filePath: string; content: string }) => {
       const { filePath, content: payload } = param;
-      dispatch({ type: CHAGNE_TITLE_EPIC, payload: filePath });
+      dispatch({ type: CHANGE_TITLE_EPIC, payload: filePath });
       dispatch({ type: SET_CONTENT, payload });
     }
   );
@@ -27,7 +27,7 @@ export function initLisenter({ dispatch }: DispatchProp) {
   ipcRenderer.on("unread-file", () => dispatch({ type: UNREAD_FILE_EPIC }));
   //   扫描项目完成
   ipcRenderer.on("scan-finish", (e: any, message: any) => {
-    dispatch({ type: CHAGNE_TITLE_EPIC });
+    dispatch({ type: CHANGE_TITLE_EPIC });
     dispatch({ type: SET_CONTENT, payload: message });
   });
 
