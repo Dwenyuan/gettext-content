@@ -1,7 +1,7 @@
 import { zipObjectDeep, isEmpty } from "lodash";
 import { combineReducers } from "redux";
 import { ActionBean } from "../bean/action.bean";
-import { Translation, TranslationBean } from "../bean/content.bean";
+import { Translation, PoBean } from "../bean/content.bean";
 import { FUZZY } from "../services/config";
 import {
   CHANGE_CONTENT,
@@ -10,13 +10,14 @@ import {
   SET_CONTENT,
   UNREAD_FILE,
   CHANGE_TITLE,
-  CHANGE_SAVING_STATUS
+  CHANGE_SAVING_STATUS,
 } from "./actions";
 import { GlobalStatusBean } from "../bean/global_status.bean";
+import { mergeTranslation } from "../utils/merge-translation";
 export interface RootReducer {
   GlobalStatus: GlobalStatusBean;
   TitleReducer: { title: string };
-  ContentReducer: TranslationBean;
+  ContentReducer: PoBean;
   SelectedTranslation?: { selectedId?: string };
 }
 type TransObject = { [index: string]: Translation };
@@ -34,47 +35,27 @@ function mergeTrans(translationsInner: TransObject) {
         msgstr: [value],
         comments: {
           ...comments,
-          flag: fuzzy ? FUZZY : undefined
-        }
-      }
+          flag: fuzzy ? FUZZY : undefined,
+        },
+      },
     };
   };
 }
 export function ContentReducer(
-  state: TranslationBean = { charset: "", headers: {}, translations: {} },
+  state: PoBean = { charset: "", headers: {}, translations: {} },
   action: ActionBean = { type: undefined }
-): TranslationBean {
+): PoBean {
   const translationsInner = state.translations[""] || {};
   const { payload = {} } = action;
   switch (action.type) {
     case SET_CONTENT:
-      return { ...state, ...action.payload };
+      return { ...state, ...payload };
     case UNREAD_FILE:
       return { charset: "", headers: {}, translations: {} };
     case MERGE_CONTENT:
-      // 有可能出现json文件中有,而扫描结果中没有的情况,此时以扫描结果为准
-      const keys = Object.keys(payload).filter(f => translationsInner[f]);
-      const nextTranslations = zipObjectDeep(
-        keys,
-        keys.map(v => ({
-          ...translationsInner[v],
-          comments: {
-            // 导入的情况下取消掉待处理的标示
-            ...(translationsInner[v].comments || {}),
-            flag: undefined
-          },
-          msgstr: [payload[v]]
-        }))
-      );
       return {
         ...state,
-        translations: {
-          ...state.translations,
-          "": {
-            ...translationsInner,
-            ...nextTranslations
-          }
-        }
+        translations: mergeTranslation(state.translations, payload),
       };
     case CHANGE_CONTENT:
       if (!Array.isArray(action.payload) && !isEmpty(action.payload)) {
@@ -87,9 +68,9 @@ export function ContentReducer(
           translations: {
             ...state.translations,
             "": {
-              ...nextTranslations
-            }
-          }
+              ...nextTranslations,
+            },
+          },
         };
       }
       if (Array.isArray(action.payload) && !isEmpty(action.payload)) {
@@ -102,9 +83,9 @@ export function ContentReducer(
           translations: {
             ...state.translations,
             "": {
-              ...nextTranslations
-            }
-          }
+              ...nextTranslations,
+            },
+          },
         };
       }
       return state;
@@ -156,5 +137,5 @@ export const rootReducer = combineReducers({
   GlobalStatus,
   TitleReducer,
   ContentReducer,
-  SelectedTranslation
+  SelectedTranslation,
 });

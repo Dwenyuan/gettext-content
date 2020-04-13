@@ -13,7 +13,7 @@ import { isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import { connect, DispatchProp } from "react-redux";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import { TranslationBean } from "../bean/content.bean";
+import { PoBean } from "../bean/content.bean";
 import { mapTanslation } from "../store/mapStateToProps";
 const { ipcRenderer } = window.require
   ? window.require("electron")
@@ -25,7 +25,7 @@ const btnProps: ButtonProps = {
     minWidth: 340
   }
 };
-interface IProps extends TranslationBean, RouteComponentProps, DispatchProp {}
+interface IProps extends PoBean, RouteComponentProps, DispatchProp {}
 export function ImportPageInner(props: IProps) {
   const { translations, history } = props;
   console.log(props);

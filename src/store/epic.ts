@@ -13,7 +13,7 @@ import {
   take,
 } from "rxjs/operators";
 import { ActionBean } from "../bean/action.bean";
-import { sourceLanguage, TranslationBean } from "../bean/content.bean";
+import { sourceLanguage, PoBean } from "../bean/content.bean";
 import { BaiduTransResultBean } from "../bean/trans_result.bean";
 import { Lang, translatorByBaidu } from "../services/translator.service";
 import {
@@ -67,7 +67,7 @@ export const changeContent = (
  * 从翻译结构中提取要翻译的文本
  *
  * @param {{
- *   ContentReducer: TranslationBean;
+ *   ContentReducer: PoBean;
  * }} {
  *   ContentReducer
  * }
@@ -76,7 +76,7 @@ export const changeContent = (
 export function exactQueryStr({
   ContentReducer,
 }: {
-  ContentReducer: TranslationBean;
+  ContentReducer: PoBean;
 }) {
   const translations = ContentReducer.translations[""] || {};
   return Object.keys(translations).filter((f) => {

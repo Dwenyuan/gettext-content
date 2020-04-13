@@ -4,7 +4,7 @@ import { isEmpty } from "lodash";
 import React, { useEffect } from "react";
 import { connect, DispatchProp } from "react-redux";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import { TranslationBean } from "../bean/content.bean";
+import { PoBean } from "../bean/content.bean";
 import { DataTable } from "../components/data.table";
 import { HelperList } from "../components/helper.list";
 import { mapTanslation } from "../store/mapStateToProps";
@@ -30,7 +30,7 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1
   }
 }));
-interface IProps extends TranslationBean, RouteComponentProps, DispatchProp {}
+interface IProps extends PoBean, RouteComponentProps, DispatchProp {}
 function TranslatorPage(props: IProps) {
   const classes = useStyles();
   const { history, translations } = props;

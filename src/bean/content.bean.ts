@@ -4,9 +4,9 @@ import { Lang } from "../services/translator.service";
  * po文件解析后的类型
  *
  * @export
- * @interface TranslationBean
+ * @interface PoBean
  */
-export interface TranslationBean {
+export interface PoBean {
   charset: string;
   headers: {
     "Project-Id-Version"?: string;
@@ -24,10 +24,11 @@ export interface TranslationBean {
     "X-Poedit-KeywordsList"?: string;
     "X-Poedit-SearchPath-0"?: string;
   };
-  translations: {
-    [context: string]: {
-      [msgid: string]: Translation;
-    };
+  translations: TranslationsBean;
+}
+export interface TranslationsBean {
+  [context: string]: {
+    [msgid: string]: Translation;
   };
 }
 export interface Translation {

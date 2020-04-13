@@ -1,9 +1,9 @@
-import { TranslationBean } from "../bean/content.bean";
+import { PoBean } from "../bean/content.bean";
 
 export function mapTanslation({
   ContentReducer
 }: {
-  ContentReducer: TranslationBean;
+  ContentReducer: PoBean;
 }) {
   return { ...ContentReducer };
 }
