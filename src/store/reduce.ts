@@ -63,6 +63,7 @@ export function ContentReducer(
           mergeTrans(translationsInner),
           translationsInner
         );
+        // TODO: 需要替换合并方法
         return {
           ...state,
           translations: {
@@ -74,6 +75,7 @@ export function ContentReducer(
         };
       }
       if (Array.isArray(action.payload) && !isEmpty(action.payload)) {
+         // TODO: 需要替换合并方法
         const nextTranslations = action.payload.reduce(
           mergeTrans(translationsInner),
           translationsInner
