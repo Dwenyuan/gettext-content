@@ -1,19 +1,11 @@
-import { zipObjectDeep, isEmpty } from "lodash";
+import { isEmpty } from "lodash";
 import { combineReducers } from "redux";
 import { ActionBean } from "../bean/action.bean";
-import { Translation, PoBean } from "../bean/content.bean";
-import { FUZZY } from "../services/config";
-import {
-  CHANGE_CONTENT,
-  MERGE_CONTENT,
-  SELECT_ROW,
-  SET_CONTENT,
-  UNREAD_FILE,
-  CHANGE_TITLE,
-  CHANGE_SAVING_STATUS,
-} from "./actions";
+import { PoBean, Translation } from "../bean/content.bean";
 import { GlobalStatusBean } from "../bean/global_status.bean";
+import { FUZZY } from "../services/config";
 import { mergeTranslation } from "../utils/merge-translation";
+import { CHANGE_CONTENT, CHANGE_SAVING_STATUS, CHANGE_TITLE, MERGE_CONTENT, SELECT_ROW, SET_CONTENT, UNREAD_FILE } from "./actions";
 export interface RootReducer {
   GlobalStatus: GlobalStatusBean;
   TitleReducer: { title: string };

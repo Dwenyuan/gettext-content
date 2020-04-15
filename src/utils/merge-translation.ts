@@ -31,7 +31,7 @@ export function mergeTranslation(
             msgctxt: contextKey || undefined,
             msgid,
             msgid_plural: sourceMessage.msgid_plural || undefined,
-            // 导入的情况下取消掉待处理的标示
+            // 注: 导入的情况下取消掉待处理的标示
             comments: { ...sourceComments, flag: undefined },
             msgstr: sourceMsgstr.map((v, i) => targetMsgstr[i] || v),
           },
