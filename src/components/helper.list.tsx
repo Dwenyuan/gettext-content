@@ -1,36 +1,27 @@
-import {
-  Button,
-  Card,
-  CardContent,
-  FormControlLabel,
-  List,
-  ListItem,
-  ListItemText,
-  Switch,
-  Typography
-} from "@material-ui/core";
+import { Button, Card, CardContent, FormControlLabel, List, ListItem, ListItemText, Switch, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import { Translation } from "gettext-lib";
 import React, { useEffect, useState } from "react";
 import { connect, DispatchProp } from "react-redux";
-import { sourceLanguage, Translation } from "../bean/content.bean";
+import { sourceLanguage } from "../bean/content.bean";
 import { BaiduTransResultBean } from "../bean/trans_result.bean";
+import { FUZZY } from "../services/config";
 import { mergeFile, rescanProject } from "../services/file.services";
 import { Lang, translatorByBaidu } from "../services/translator.service";
 import { CHANGE_CONTENT_EPIC, PRE_TRANSLATOR } from "../store/actions";
 import { RootReducer } from "../store/reduce";
-import { FUZZY } from "../services/config";
 
 const useStyles = makeStyles({
   card: {
-    marginBottom: 5
+    marginBottom: 5,
   },
   translator: {
-    marginTop: 5
+    marginTop: 5,
   },
   rootBtn: {
     width: "100%",
-    marginTop: 10
-  }
+    marginTop: 10,
+  },
 });
 interface IProps extends RootReducer, DispatchProp {}
 
@@ -40,9 +31,9 @@ export const HelperList = connect((root: RootReducer) => root)(
       SelectedTranslation: { selectedId = undefined } = {},
       ContentReducer: {
         headers: { Language = "zh" },
-        translations
+        translations,
       },
-      dispatch
+      dispatch,
     } = props || {};
     const classes = useStyles();
     const [baiduTrans = {}, setBaiduTrans] = useState<BaiduTransResultBean>();
@@ -50,7 +41,7 @@ export const HelperList = connect((root: RootReducer) => root)(
     const {
       msgid,
       msgstr: [first] = [],
-      comments: { reference = "", flag = undefined } = {}
+      comments: { reference = "", flag = undefined } = {},
     } = selected! || {};
     useEffect(() => {
       const selectTranslation = (translations[""] || {})[selectedId!];
@@ -61,9 +52,9 @@ export const HelperList = connect((root: RootReducer) => root)(
         translatorByBaidu({
           query: msgid,
           from: sourceLanguage,
-          to: Lang[Language]
+          to: Lang[Language],
         })
-          .then(res => res.json<BaiduTransResultBean>())
+          .then((res) => res.json<BaiduTransResultBean>())
           .then((content: BaiduTransResultBean) => {
             console.log("content", content);
             setBaiduTrans(content);
@@ -84,14 +75,14 @@ export const HelperList = connect((root: RootReducer) => root)(
                   <Switch
                     disabled={!msgid}
                     checked={flag === FUZZY}
-                    onChange={e =>
+                    onChange={(e) =>
                       dispatch({
                         type: CHANGE_CONTENT_EPIC,
                         payload: {
                           key: msgid,
                           value: first,
-                          fuzzy: e.target.checked
-                        }
+                          fuzzy: e.target.checked,
+                        },
                       })
                     }
                     color="secondary"
@@ -152,7 +143,7 @@ export const HelperList = connect((root: RootReducer) => root)(
                       onClick={() =>
                         dispatch({
                           type: CHANGE_CONTENT_EPIC,
-                          payload: { key: msgid, value: dst, fuzzy: true }
+                          payload: { key: msgid, value: dst, fuzzy: true },
                         })
                       }
                     />
@@ -165,7 +156,7 @@ export const HelperList = connect((root: RootReducer) => root)(
         {reference && reference.split("\n").length > 0 && (
           <Card>
             <CardContent>
-              {reference.split("\n").map(v => (
+              {reference.split("\n").map((v) => (
                 <Typography
                   key={v}
                   variant="caption"

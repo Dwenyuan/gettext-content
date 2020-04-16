@@ -1,7 +1,7 @@
+import { PoBean, Translation } from "gettext-lib";
 import { isEmpty } from "lodash";
 import { combineReducers } from "redux";
 import { ActionBean } from "../bean/action.bean";
-import { PoBean, Translation } from "../bean/content.bean";
 import { GlobalStatusBean } from "../bean/global_status.bean";
 import { FUZZY } from "../services/config";
 import { mergeTranslation } from "../utils/merge-translation";

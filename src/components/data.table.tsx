@@ -1,20 +1,7 @@
-import {
-  FormControlLabel,
-  makeStyles,
-  Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
-  TextField,
-  Box
-} from "@material-ui/core";
+import { Box, FormControlLabel, makeStyles, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField } from "@material-ui/core";
+import { Translation } from "gettext-lib";
 import React, { useEffect, useState } from "react";
 import { connect, DispatchProp } from "react-redux";
-import { Translation } from "../bean/content.bean";
 import { FUZZY } from "../services/config";
 import { CHANGE_CONTENT_EPIC, SELECT_ROW_EPIC } from "../store/actions";
 import { RootReducer } from "../store/reduce";

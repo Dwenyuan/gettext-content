@@ -1,10 +1,10 @@
 import { Grid, makeStyles, Paper } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
+import { PoBean } from "gettext-lib";
 import { isEmpty } from "lodash";
 import React, { useEffect } from "react";
 import { connect, DispatchProp } from "react-redux";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import { PoBean } from "../bean/content.bean";
 import { DataTable } from "../components/data.table";
 import { HelperList } from "../components/helper.list";
 import { mapTanslation } from "../store/mapStateToProps";

@@ -1,19 +1,9 @@
-import {
-  Button,
-  ButtonProps,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Grid,
-  MenuItem,
-  TextField
-} from "@material-ui/core";
+import { Button, ButtonProps, Dialog, DialogActions, DialogContent, DialogTitle, Grid, MenuItem, TextField } from "@material-ui/core";
+import { PoBean } from "gettext-lib";
 import { isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import { connect, DispatchProp } from "react-redux";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import { PoBean } from "../bean/content.bean";
 import { mapTanslation } from "../store/mapStateToProps";
 const { ipcRenderer } = window.require
   ? window.require("electron")
@@ -28,8 +18,6 @@ const btnProps: ButtonProps = {
 interface IProps extends PoBean, RouteComponentProps, DispatchProp {}
 export function ImportPageInner(props: IProps) {
   const { translations, history } = props;
-  console.log(props);
-
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     if (!isEmpty(translations)) {

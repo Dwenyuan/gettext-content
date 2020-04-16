@@ -1,4 +1,4 @@
-import { PoBean } from "../bean/content.bean";
+import { PoBean } from 'gettext-lib'
 
 export function mapTanslation({
   ContentReducer

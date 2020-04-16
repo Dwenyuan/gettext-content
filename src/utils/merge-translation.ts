@@ -1,4 +1,4 @@
-import { TranslationsBean } from "../bean/content.bean";
+import { TranslationsBean } from "gettext-lib";
 
 /**
  *
