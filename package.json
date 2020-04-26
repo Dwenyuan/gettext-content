@@ -7,7 +7,7 @@
     "email": "liushao121@163.com"
   },
   "dependencies": {
-    "gettext-lib": "git+ssh://git@github.com:Dwenyuan/gettext-box.git#master",
+    "gettext-lib": "git+ssh://git@github.com:Dwenyuan/gettext-lib.git#dev",
     "@material-ui/core": "^4.9.5",
     "@material-ui/icons": "^4.9.1",
     "@testing-library/jest-dom": "^4.2.4",
