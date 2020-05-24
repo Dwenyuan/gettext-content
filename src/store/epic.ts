@@ -34,6 +34,7 @@ import {
   MERGE_FROM_POT,
 } from "./actions";
 import { RootReducer } from "./reduce";
+import { changeSavingStatus } from "./epics/status.epic";
 
 /**
  * 从主线程中获取 po 文件内容
@@ -179,6 +180,7 @@ export const changeTitle = (action$: Observable<ActionBean<null>>) =>
     map(({ payload }) => ({ type: CHANGE_TITLE, payload }))
   );
 export const rootEpic = combineEpics(
+  changeSavingStatus,
   changeTitle,
   fetchContent,
   selectRow,
