@@ -54,6 +54,7 @@
       "last 1 safari version"
     ]
   },
+  "homepage": ".",
   "license": "GPL-3.0",
   "devDependencies": {
     "@types/lodash": "^4.14.149",

@@ -1,4 +1,17 @@
-import { Box, FormControlLabel, makeStyles, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField } from "@material-ui/core";
+import {
+  Box,
+  FormControlLabel,
+  makeStyles,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TextField,
+} from "@material-ui/core";
 import { Translation } from "gettext-lib";
 import React, { useEffect, useState } from "react";
 import { connect, DispatchProp } from "react-redux";
@@ -7,15 +20,15 @@ import { CHANGE_CONTENT_EPIC, SELECT_ROW_EPIC } from "../store/actions";
 import { RootReducer } from "../store/reduce";
 const useStyle = makeStyles({
   container: {
-    height: "calc(100vh - 76px)"
-  }
+    height: "calc(100vh - 76px)",
+  },
 });
 interface IProps extends RootReducer, DispatchProp {}
 export function DataTableInner(props: IProps) {
   const {
     ContentReducer: { translations },
     SelectedTranslation: { selectedId = undefined } = {},
-    dispatch
+    dispatch,
   } = props;
 
   const classes = useStyle();
@@ -28,14 +41,14 @@ export function DataTableInner(props: IProps) {
   const list = translations[""];
   const keys = Object.keys(list || {});
   useEffect(() => {
-    setTotal(keys.filter(key => !!key).length);
+    setTotal(keys.filter((key) => !!key).length);
   }, [keys]);
   useEffect(() => {
     setTotal(getFiletedList({ keys, list, keyword, onlyTodo }).length);
   }, [keys, keyword, list, onlyTodo]);
   const fillCount = keys
-    .filter(key => !!key)
-    .filter(f => {
+    .filter((key) => !!key)
+    .filter((f) => {
       const { msgstr: [first] = [] } = list[f] || {};
       return !!first;
     }).length;
@@ -43,7 +56,7 @@ export function DataTableInner(props: IProps) {
   function tableBody() {
     return getFiletedList({ keys, list, keyword, onlyTodo })
       .slice(current * pageSize, current * pageSize + pageSize)
-      .map(key => {
+      .map((key) => {
         const { msgstr: [first] = [], comments: { flag = undefined } = {} } =
           list[key] || {};
         const isFuzzy = flag === FUZZY || !first;
@@ -85,7 +98,7 @@ export function DataTableInner(props: IProps) {
                   size="small"
                   variant="standard"
                   value={keyword}
-                  onChange={e => {
+                  onChange={(e) => {
                     setCurrent(0);
                     setKeyword(e.target.value);
                   }}
@@ -99,7 +112,7 @@ export function DataTableInner(props: IProps) {
                     <Switch
                       size="small"
                       checked={onlyTodo}
-                      onChange={e => {
+                      onChange={(e) => {
                         setCurrent(0);
                         setOnlyTodo(e.target.checked);
                       }}
@@ -121,7 +134,7 @@ export function DataTableInner(props: IProps) {
         rowsPerPage={pageSize}
         page={current}
         onChangePage={(e, index) => setCurrent(index)}
-        onChangeRowsPerPage={e => setPageSize(parseInt(e.target.value))}
+        onChangeRowsPerPage={(e) => setPageSize(parseInt(e.target.value))}
       />
     </React.Fragment>
   );
@@ -138,22 +151,22 @@ function getFiletedList(param: {
 }) {
   const { keys, list, keyword = "", onlyTodo } = param;
   return keys
-    .filter(key => !!key)
-    .filter(key => {
+    .filter((key) => !!key)
+    .filter((key) => {
       const {
         msgstr: [first] = [],
-        comments: { flag = undefined } = {}
+        comments: { flag = undefined } = {},
       } = list[key];
       return !onlyTodo || !first || flag === FUZZY;
     })
-    .filter(f => {
+    .filter((f) => {
       const nextWord = keyword.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
       return new RegExp(nextWord, "i").test(f);
     });
 }
 function onChange({ dispatch }: DispatchProp, key: string) {
   return ({
-    target: { value }
+    target: { value },
   }: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     dispatch({ type: CHANGE_CONTENT_EPIC, payload: { key, value } });
   };
