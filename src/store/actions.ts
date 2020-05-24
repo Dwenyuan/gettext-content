@@ -9,6 +9,9 @@ export const SET_CONTENT = "SET_CONTENT";
  */
 export const MERGE_CONTENT_EPIC = "MERGE_CONTENT_EPIC";
 export const MERGE_CONTENT = "MERGE_CONTENT";
+// 从POT文件合并
+export const MERGE_FROM_POT_EPIC = "MERGE_FROM_POT_EPIC";
+export const MERGE_FROM_POT = "MERGE_FROM_POT";
 /**
  * 选中某一行
  */

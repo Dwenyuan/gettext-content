@@ -5,7 +5,16 @@ import { ActionBean } from "../bean/action.bean";
 import { GlobalStatusBean } from "../bean/global_status.bean";
 import { FUZZY } from "../services/config";
 import { mergeTranslation } from "../utils/merge-translation";
-import { CHANGE_CONTENT, CHANGE_SAVING_STATUS, CHANGE_TITLE, MERGE_CONTENT, SELECT_ROW, SET_CONTENT, UNREAD_FILE } from "./actions";
+import {
+  CHANGE_CONTENT,
+  CHANGE_SAVING_STATUS,
+  CHANGE_TITLE,
+  MERGE_CONTENT,
+  SELECT_ROW,
+  SET_CONTENT,
+  UNREAD_FILE,
+  MERGE_FROM_POT,
+} from "./actions";
 export interface RootReducer {
   GlobalStatus: GlobalStatusBean;
   TitleReducer: { title: string };
@@ -49,6 +58,16 @@ export function ContentReducer(
         ...state,
         translations: mergeTranslation(state.translations, payload),
       };
+    case MERGE_FROM_POT:
+      return {
+        ...state,
+        ...payload,
+        translations: mergeTranslation(
+          payload.translations,
+          state.translations,
+          true
+        ),
+      };
     case CHANGE_CONTENT:
       if (!Array.isArray(action.payload) && !isEmpty(action.payload)) {
         const nextTranslations = [action.payload].reduce(
@@ -67,7 +86,7 @@ export function ContentReducer(
         };
       }
       if (Array.isArray(action.payload) && !isEmpty(action.payload)) {
-         // TODO: 需要替换合并方法
+        // TODO: 需要替换合并方法
         const nextTranslations = action.payload.reduce(
           mergeTrans(translationsInner),
           translationsInner
