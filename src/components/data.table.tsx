@@ -65,9 +65,8 @@ export function DataTableInner(props: IProps) {
             selected={selectedId === key}
             hover={true}
             key={key}
-            onClick={() => dispatch({ type: SELECT_ROW_EPIC, payload: key })}
-          >
-            <TableCell>
+            onClick={() => dispatch({ type: SELECT_ROW_EPIC, payload: key })}>
+            <TableCell style={{ width: "50%" }}>
               <Box color={isFuzzy ? "warning.main" : ""}>{key}</Box>
             </TableCell>
             <TableCell>
@@ -102,7 +101,7 @@ export function DataTableInner(props: IProps) {
                     setCurrent(0);
                     setKeyword(e.target.value);
                   }}
-                ></TextField>
+                />
               </TableCell>
               <TableCell>
                 翻译文件
@@ -128,12 +127,12 @@ export function DataTableInner(props: IProps) {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[5, 10, 20, 30]}
+        rowsPerPageOptions={[5, 10, 20, 30, 100, 500]}
         component="div"
         count={total}
         rowsPerPage={pageSize}
         page={current}
-        onChangePage={(e, index) => setCurrent(index)}
+        onChangePage={(_e, index) => setCurrent(index)}
         onChangeRowsPerPage={(e) => setPageSize(parseInt(e.target.value))}
       />
     </React.Fragment>
