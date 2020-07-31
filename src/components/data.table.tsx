@@ -1,7 +1,6 @@
 import {
   Box,
   FormControlLabel,
-  makeStyles,
   Switch,
   Table,
   TableBody,
@@ -12,6 +11,7 @@ import {
   TableRow,
   TextField,
 } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 import { Translation } from "gettext-lib";
 import React, { useEffect, useState } from "react";
 import { connect, DispatchProp } from "react-redux";
@@ -54,6 +54,7 @@ export function DataTableInner(props: IProps) {
     }).length;
 
   function tableBody() {
+    console.count("数据主体表格渲染次数");
     return getFiletedList({ keys, list, keyword, onlyTodo })
       .slice(current * pageSize, current * pageSize + pageSize)
       .map((key) => {

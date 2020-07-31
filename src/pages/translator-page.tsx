@@ -1,4 +1,5 @@
-import { Grid, makeStyles, Paper, Snackbar } from "@material-ui/core";
+import { Grid, Paper, Snackbar } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 import { grey } from "@material-ui/core/colors";
 import { Alert } from "@material-ui/lab";
 import { PoBean } from "gettext-lib";
@@ -50,6 +51,7 @@ function TranslatorPage(props: IProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [translations]);
   useEffect(() => setOpen(true), [saving]);
+  console.count("数据表格渲染次数");
   return (
     <Grid className={classes.root} container direction="row">
       <Grid
@@ -58,15 +60,13 @@ function TranslatorPage(props: IProps) {
         style={{ paddingRight: 5 }}
         direction="column"
         justify="space-around"
-        xs={8}
-      >
+        xs={8}>
         <Grid className={classes.split} style={{ flex: 1, overflow: "auto" }}>
           <Snackbar
             open={open}
             autoHideDuration={3000}
             onClose={() => setOpen(false)}
-            anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          >
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}>
             <Alert elevation={6} variant="filled" severity="success">
               {saving ? "保存中" : "保存成功"}
             </Alert>
